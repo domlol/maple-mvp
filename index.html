@@ -3,274 +3,235 @@
 <head>
 <meta charset="UTF-8" />
 <title>메이플스토리 MVP 계산기</title>
-
 <style>
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  font-family: Pretendard, Arial, sans-serif;
-  background: #f4f6f8;
-  color: #222;
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #222;
+  --sub: #666;
+  --blue: #2563eb;
 }
 body.dark {
-  background: #121212;
-  color: #eee;
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #f1f1f1;
+  --sub: #aaa;
 }
-
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+}
 header {
-  background: #1e6fff;
+  background: var(--blue);
   color: #fff;
-  padding: 16px 24px;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
-.toggle-btn {
-  cursor: pointer;
-  font-size: 18px;
-}
-
 .container {
   max-width: 1100px;
-  margin: 30px auto;
-  padding: 0 16px;
-}
-
-.grid {
+  margin: 20px auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
-
 .card {
-  background: #fff;
-  border-radius: 14px;
+  background: var(--card);
+  border-radius: 12px;
   padding: 20px;
 }
-body.dark .card {
-  background: #1f1f1f;
-}
-
-h2 {
-  margin-top: 0;
-}
-
 input {
   width: 100%;
-  padding: 10px;
-  margin: 6px 0 12px;
-  font-size: 15px;
+  padding: 12px;
+  font-size: 16px;
+  box-sizing: border-box;
 }
-
 button {
   padding: 10px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
   cursor: pointer;
 }
+button.primary { background: var(--blue); color: #fff; }
+button.danger { background: #ef4444; color: #fff; }
 
-.btn-primary { background:#1e6fff; color:#fff; }
-.btn-danger { background:#e84141; color:#fff; }
-
-.notice {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #e67e22;
-}
-
-.mvp-buttons button {
-  margin: 4px;
-  padding: 8px 14px;
-  border-radius: 20px;
-  background: #ddd;
-}
-.mvp-buttons button.active {
-  background: linear-gradient(135deg,#ffd700,#ff9800);
-  color: #000;
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
   font-weight: bold;
+  font-size: 14px;
+}
+.bronze { background:#cd7f32;color:#fff }
+.silver { background:#9ca3af;color:#fff }
+.gold { background:#facc15;color:#000 }
+.diamond { background:#38bdf8;color:#000 }
+.red { background:#ef4444;color:#fff }
+.black { background:#000;color:#fff }
+
+.summary-box {
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.04);
 }
 
 table {
-  width: 100%;
+  width:100%;
   border-collapse: collapse;
 }
-th, td {
-  padding: 8px;
-  border-bottom: 1px solid #ccc;
+th,td {
+  padding: 10px;
+  border-bottom:1px solid #ddd;
   text-align: center;
 }
-body.dark th, body.dark td {
-  border-color: #444;
-}
-
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: bold;
-}
-.badge.브론즈 { background:#cd7f32; color:#fff; }
-.badge.실버 { background:#bfc1c2; }
-.badge.골드 { background:#f5c542; }
-.badge.다이아 { background:#5fd3ff; }
-.badge.레드 { background:#ff4d4d; color:#fff; }
-.badge.블랙 { background:#111; color:#fff; }
 </style>
 </head>
 
 <body>
 <header>
-  <div>
-    <strong>메이플스토리 MVP 계산기</strong><br>
-    <small>이번 주 포함 최근 13주 구매 금액 기준</small>
-  </div>
-  <div class="toggle-btn" onclick="toggleDark()">🌙</div>
+  <div>메이플스토리 MVP 계산기</div>
+  <button onclick="toggleTheme()">🌙</button>
 </header>
 
 <div class="container">
-  <div class="grid">
-    <div class="card">
-      <h2>충전 기록 추가</h2>
-      <label>캐시 사용 날짜</label>
-      <input type="date" id="dateInput">
-      <label>금액</label>
-      <input type="number" id="amountInput" placeholder="예: 50000">
+  <div class="card">
+    <h3>충전 기록 추가</h3>
+    <label>캐시 사용 날짜</label>
+    <input type="date" id="dateInput">
+    <label>금액</label>
+    <input type="number" id="amountInput">
+    <br><br>
+    <button class="primary" onclick="addCharge()">추가</button>
+    <button class="danger" onclick="resetAll()">전체 초기화</button>
 
-      <button class="btn-primary" onclick="addRecord()">추가</button>
-      <button class="btn-danger" onclick="resetAll()">전체 초기화</button>
-
-      <div class="notice">
-        ⚠ MVP 계산은 캐시 충전 금액이 아닌<br>
-        <b>캐시를 실제 사용한 날짜 기준</b>입니다.
-      </div>
-
-      <h3>충전 기록</h3>
-      <table id="recordTable">
+    <h4>충전 기록</h4>
+    <table>
+      <thead>
         <tr><th>날짜</th><th>금액</th><th>소멸</th></tr>
-      </table>
+      </thead>
+      <tbody id="history"></tbody>
+    </table>
 
-      <h3>목표 MVP 등급</h3>
-      <div class="mvp-buttons" id="mvpBtns"></div>
-    </div>
-
-    <div class="card">
-      <h2>📌 요약 정보</h2>
-      <div id="summary"></div>
-    </div>
+    <h4>목표 MVP 등급</h4>
+    <div id="targetBtns"></div>
   </div>
 
-  <div class="card" style="margin-top:20px">
-    <h2>📊 주차별 예상 등급 시뮬레이션</h2>
-    <table id="simulation">
-      <tr><th>기준 날짜</th><th>예상 누적</th><th>등급</th></tr>
+  <div class="card">
+    <h3>📌 요약 정보</h3>
+    <div id="summary"></div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="card" style="grid-column:1/3">
+    <h3>📊 주차별 예상 등급 시뮬레이션</h3>
+    <table>
+      <thead>
+        <tr><th>기준 날짜</th><th>예상 누적</th><th>등급</th></tr>
+      </thead>
+      <tbody id="weekly"></tbody>
     </table>
   </div>
 </div>
 
 <script>
-const mvpCriteria = {
-  브론즈: 150000,
-  실버: 300000,
-  골드: 600000,
-  다이아: 900000,
-  레드: 1500000,
-  블랙: 3000000
-};
-
-let records = [];
+const MVP = [
+  {name:"브론즈", value:150000, cls:"bronze"},
+  {name:"실버", value:300000, cls:"silver"},
+  {name:"골드", value:600000, cls:"gold"},
+  {name:"다이아", value:900000, cls:"diamond"},
+  {name:"레드", value:1500000, cls:"red"},
+  {name:"블랙", value:3000000, cls:"black"},
+];
+let charges = JSON.parse(localStorage.getItem("charges")||"[]");
 let target = null;
 
-function toggleDark(){
+function toggleTheme(){
   document.body.classList.toggle("dark");
-  localStorage.setItem("dark",document.body.classList.contains("dark"));
 }
-if(localStorage.getItem("dark")==="true") toggleDark();
+function save(){ localStorage.setItem("charges",JSON.stringify(charges)); }
 
-function addRecord(){
+function addCharge(){
   const d = dateInput.value;
-  const a = +amountInput.value;
-  if(!d||!a) return alert("날짜와 금액 입력");
-
-  const expire = new Date(d);
-  expire.setDate(expire.getDate()+91);
-
-  records.push({d,a,expire});
-  render();
+  const a = Number(amountInput.value);
+  if(!d||!a) return;
+  charges.push({date:d,amount:a});
+  save(); render();
 }
 
 function resetAll(){
-  records=[];
-  target=null;
-  render();
+  charges=[]; save(); render();
 }
 
-function currentSum(){
-  const now = new Date();
-  return records.filter(r=>r.expire>=now)
-    .reduce((s,r)=>s+r.a,0);
+function getTotal(base){
+  const b=new Date(base);
+  return charges.filter(c=>{
+    const u=new Date(c.date);
+    const e=new Date(u); e.setDate(e.getDate()+91);
+    return u<=b && e>b;
+  }).reduce((s,c)=>s+c.amount,0);
 }
-
-function gradeBy(sum){
-  let g="없음";
-  for(let k in mvpCriteria){
-    if(sum>=mvpCriteria[k]) g=k;
-  }
-  return g;
+function getGrade(amount){
+  return [...MVP].reverse().find(g=>amount>=g.value)||{name:"없음"};
 }
 
 function render(){
-  // 기록
-  recordTable.innerHTML="<tr><th>날짜</th><th>금액</th><th>소멸</th></tr>";
-  records.forEach(r=>{
-    recordTable.innerHTML+=`<tr>
-      <td>${r.d}</td>
-      <td>${r.a.toLocaleString()}</td>
-      <td>${r.expire.toISOString().slice(0,10)}</td>
-    </tr>`;
+  history.innerHTML="";
+  charges.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  charges.forEach(c=>{
+    const e=new Date(c.date); e.setDate(e.getDate()+91);
+    history.innerHTML+=`<tr><td>${c.date}</td><td>${c.amount.toLocaleString()}</td><td>${e.toISOString().slice(0,10)}</td></tr>`;
   });
 
-  const sum=currentSum();
-  const curGrade=gradeBy(sum);
+  const today=new Date();
+  const total=getTotal(today);
+  const grade=getGrade(total);
 
-  // 요약
-  let html=`현재 등급: <span class="badge ${curGrade}">${curGrade}</span><br>
-  최근 13주 누적: ${sum.toLocaleString()}원<br><br>`;
+  let summaryHTML = `
+    현재 등급: <span class="badge ${grade.cls||""}">${grade.name}</span><br>
+    최근 13주 누적: ${total.toLocaleString()}원
+  `;
 
   if(target){
-    if(sum>=mvpCriteria[target]){
-      const minExpire=Math.min(...records.map(r=>r.expire));
-      html+=`✅ 목표 달성 (${target})<br>
-      ${new Date(minExpire).toISOString().slice(0,10)}까지 유지 가능`;
+    if(total>=target.value){
+      const expireDates = charges.map(c=>{
+        const d=new Date(c.date); d.setDate(d.getDate()+91); return d;
+      }).sort((a,b)=>a-b);
+      summaryHTML+=`
+        <div class="summary-box">
+        ✅ 목표 달성 (${target.name})<br>
+        ${expireDates[0].toISOString().slice(0,10)} 까지 유지 가능
+        </div>`;
     }else{
-      html+=`❌ ${target}까지 ${(mvpCriteria[target]-sum).toLocaleString()}원 부족`;
+      summaryHTML+=`
+        <div class="summary-box">
+        ❌ 목표 미달 (${target.name})<br>
+        ${(target.value-total).toLocaleString()}원 추가 필요
+        </div>`;
     }
   }
+  summary.innerHTML=summaryHTML;
 
-  summary.innerHTML=html;
-
-  // 시뮬
-  simulation.innerHTML="<tr><th>기준 날짜</th><th>예상 누적</th><th>등급</th></tr>";
-  for(let i=0;i<13;i++){
-    const d=new Date();
-    d.setDate(d.getDate()+7*i);
-    simulation.innerHTML+=`<tr>
-      <td>${d.toISOString().slice(0,10)}</td>
-      <td>${sum.toLocaleString()}</td>
-      <td>${gradeBy(sum)}</td>
-    </tr>`;
+  weekly.innerHTML="";
+  for(let i=0;i<9;i++){
+    const d=new Date(); d.setDate(d.getDate()+i*7);
+    const t=getTotal(d);
+    const g=getGrade(t);
+    weekly.innerHTML+=`
+      <tr><td>${d.toISOString().slice(0,10)}</td>
+      <td>${t.toLocaleString()}</td><td>${g.name}</td></tr>`;
   }
-
-  // MVP 버튼
-  mvpBtns.innerHTML="";
-  Object.keys(mvpCriteria).forEach(k=>{
-    const b=document.createElement("button");
-    b.textContent=k;
-    if(k===target) b.classList.add("active");
-    b.onclick=()=>{target=k; render();}
-    mvpBtns.appendChild(b);
-  });
 }
+
+const btns=document.getElementById("targetBtns");
+MVP.forEach(g=>{
+  const b=document.createElement("button");
+  b.textContent=g.name;
+  b.onclick=()=>{target=g;render();}
+  btns.appendChild(b);
+});
 
 render();
 </script>
