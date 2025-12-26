@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -8,19 +7,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+
 <button id="themeToggle" class="dark-btn">🌙 다크모드</button>
+
 <header>
     <h1>메이플스토리 MVP 계산기</h1>
-    <p>13주 충전 기록 기반·자동 계산·자동 저장·등급 안내</p>
+    <p>최근 13주(목~수) 충전 금액 기준 자동 계산</p>
 </header>
 
 <div class="container">
 
-    <!-- 왼쪽 영역 -->
+    <!-- 왼쪽 -->
     <div class="card left">
-
         <h2>충전 기록 추가</h2>
+
         <div class="input-group">
             <label>충전 날짜</label>
             <input type="date" id="chargeDate">
@@ -42,6 +42,7 @@
             <button onclick="setTarget('골드')">골드</button>
             <button onclick="setTarget('다이아')">다이아</button>
             <button onclick="setTarget('레드')">레드</button>
+            <button onclick="setTarget('블랙')">블랙</button>
         </div>
 
         <p id="targetInfo"></p>
@@ -49,18 +50,15 @@
         <hr>
 
         <h2>요약 정보</h2>
-
         <p id="totalAmount"></p>
         <p id="currentTier"></p>
         <p id="nextTierInfo"></p>
         <p id="targetTierInfo"></p>
         <p id="expireInfo"></p>
-
     </div>
 
-    <!-- 오른쪽 영역 -->
+    <!-- 오른쪽 -->
     <div class="card right">
-
         <h2>충전 기록 리스트</h2>
         <ul id="recordList"></ul>
 
@@ -73,12 +71,11 @@
         <hr>
 
         <button class="danger" onclick="resetAll()">전체 초기화</button>
-
         <p class="autosave">💾 모든 기록은 자동 저장됩니다</p>
-
     </div>
 
 </div>
-<script src="app.js?v=2"></script>
-</body>
 
+<script src="app.js?v=3"></script>
+</body>
+</html>
