@@ -1,117 +1,51 @@
-* {
-  box-sizing: border-box;
-  font-family: "Pretendard", system-ui, sans-serif;
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #111;
+  --sub: #555;
+}
+
+body.dark {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #f1f1f1;
+  --sub: #aaa;
 }
 
 body {
-  margin: 0;
-  padding-top: 60px;
-  background: #f2f4f7;
-  color: #222;
-}
-
-header {
-  text-align: center;
-  padding: 30px 10px;
-}
-
-.layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  max-width: 1100px;
-  margin: auto;
+  background: var(--bg);
+  color: var(--text);
+  transition: 0.3s;
 }
 
 .card {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--card);
+  border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  margin-bottom: 20px;
 }
 
-.card.wide {
-  max-width: 1100px;
-  margin: 20px auto;
-}
-
-.input-group {
-  margin-bottom: 12px;
-}
-
-input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-}
-
-button {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: #0d6efd;
+/* ===== MVP 뱃지 ===== */
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
   color: #fff;
+  font-size: 13px;
   font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
 }
 
-button.danger {
-  background: #dc3545;
-}
+.badge.브론즈 { background: #a97142; }
+.badge.실버 { background: #bfc5c9; color:#000; }
+.badge.골드 { background: #f5c542; color:#000; }
+.badge.다이아 { background: #4fd1ff; color:#000; }
+.badge.레드 { background: #ff4b4b; }
+.badge.블랙 { background: #000; }
 
-.target-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-#themeToggle {
+/* 다크모드 버튼 */
+.theme-btn {
   position: fixed;
-  top: 12px;
-  right: 12px;
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: #222;
-  color: #fff;
-  border: none;
+  top: 15px;
+  right: 15px;
   cursor: pointer;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-td, th {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-}
-
-ul {
-  padding-left: 18px;
-}
-
-li {
-  margin-bottom: 6px;
-}
-
-/* 다크모드 */
-body.dark {
-  background: #121212;
-  color: #eee;
-}
-
-body.dark .card {
-  background: #1e1e1e;
-}
-
-body.dark input {
-  background: #2a2a2a;
-  color: #fff;
-  border: 1px solid #444;
+  font-size: 20px;
 }
