@@ -1,112 +1,95 @@
+const TIER = {
+  브론즈: 50000,
+  실버: 300000,
+  골드: 1000000,
+  다이아: 3000000,
+  레드: 6000000,
+  블랙: 10000000
+};
+
 let records = [];
 let targetTier = null;
 
-const TIER_REQUIREMENTS = {
-  브론즈: 0,
-  실버: 300000,
-  골드: 600000,
-  다이아: 1000000,
-  레드: 1500000,
-  블랙: 3000000
-};
+const summaryEl = document.getElementById("summary");
+const tableEl = document.getElementById("recordTable");
+const simEl = document.getElementById("simulation");
 
-/* ===== 다크 / 라이트 ===== */
-function toggleTheme() {
+document.getElementById("themeToggle").onclick = () =>
   document.body.classList.toggle("dark");
-  localStorage.setItem("theme",
-    document.body.classList.contains("dark") ? "dark" : "light"
-  );
-}
 
-if (localStorage.getItem("theme") === "dark") {
-  document.body.classList.add("dark");
-}
-
-/* ===== 유틸 ===== */
-const addDays = (d, n) => new Date(d.getTime() + n*86400000);
-const fmt = d => `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
-const won = n => n.toLocaleString()+"원";
-
-/* ===== 기록 ===== */
 function addRecord() {
-  const date = document.getElementById("chargeDate").value;
-  const amount = Number(document.getElementById("chargeAmount").value);
-  if (!date || amount <= 0) return alert("입력 오류");
+  const d = dateInput.value;
+  const a = +amountInput.value;
+  if (!d || !a) return alert("날짜와 금액 입력");
 
-  records.push({ date: new Date(date), amount });
-  renderAll();
+  records.push({ date: new Date(d), amount: a });
+  render();
 }
 
-function getTotal(base = new Date()) {
-  const from = addDays(base, -91);
-  return records.filter(r => r.date >= from && r.date <= base)
-    .reduce((s,r)=>s+r.amount,0);
+function resetAll() {
+  records = [];
+  targetTier = null;
+  render();
 }
 
-function getTier(amount) {
-  let t="브론즈";
-  for (let k in TIER_REQUIREMENTS)
-    if (amount >= TIER_REQUIREMENTS[k]) t=k;
-  return t;
-}
-
-/* ===== 목표 ===== */
 function setTarget(t) {
   targetTier = t;
-  renderSummary();
+  render();
 }
 
-/* ===== 요약 ===== */
-function renderSummary() {
-  const total = getTotal();
-  const tier = getTier(total);
+function render() {
+  const today = new Date();
+  const cutoff = new Date(today);
+  cutoff.setDate(cutoff.getDate() - 91);
 
-  document.getElementById("summary").innerHTML = `
-    <div>현재 등급:
-      <span class="badge ${tier}">${tier}</span>
-    </div>
-    <div>최근 13주 누적: ${won(total)}</div>
+  const valid = records.filter(r => r.date >= cutoff);
+  const sum = valid.reduce((s, r) => s + r.amount, 0);
+
+  const currentTier =
+    Object.entries(TIER).reverse().find(([_, v]) => sum >= v)?.[0] || "없음";
+
+  summaryEl.innerHTML = `
+    현재 등급: <b>${currentTier}</b><br>
+    최근 13주 누적: <b>${sum.toLocaleString()}원</b><br>
+    ${
+      targetTier
+        ? sum >= TIER[targetTier]
+          ? `✅ 목표 ${targetTier} 달성`
+          : `❌ ${targetTier}까지 ${(TIER[targetTier] - sum).toLocaleString()}원 부족`
+        : ""
+    }
   `;
 
-  const guide = document.getElementById("targetGuide");
-  if (!targetTier) {
-    guide.innerText = "🎯 목표 MVP를 선택하세요.";
-    return;
-  }
-
-  const need = TIER_REQUIREMENTS[targetTier];
-  if (total >= need) {
-    guide.innerHTML = `✅ <span class="badge ${targetTier}">${targetTier}</span> 달성 완료`;
-  } else {
-    const until = fmt(addDays(new Date(), 91));
-    guide.innerHTML =
-      `❌ <b>${until}</b>까지 <b>${won(need-total)}</b> 유지 필요`;
-  }
-}
-
-/* ===== 시뮬레이션 ===== */
-function renderSimulation() {
-  const table = document.getElementById("simulation");
-  table.innerHTML = `
-    <tr><th>날짜</th><th>누적</th><th>등급</th></tr>
-  `;
-  for (let i=0;i<=12;i++){
-    const d = addDays(new Date(), i*7);
-    const t = getTotal(d);
-    const tier = getTier(t);
-    table.innerHTML += `
+  tableEl.innerHTML = "";
+  records.forEach((r, i) => {
+    const exp = new Date(r.date);
+    exp.setDate(exp.getDate() + 91);
+    tableEl.innerHTML += `
       <tr>
-        <td>${fmt(d)} (${i}주차)</td>
-        <td>${won(t)}</td>
-        <td><span class="badge ${tier}">${tier}</span></td>
-      </tr>
-    `;
+        <td>${r.date.toISOString().slice(0,10)}</td>
+        <td>${r.amount.toLocaleString()}</td>
+        <td>D-${Math.ceil((exp - today)/86400000)}<br>${exp.toISOString().slice(0,10)}</td>
+        <td><button onclick="records.splice(${i},1);render()">❌</button></td>
+      </tr>`;
+  });
+
+  simEl.innerHTML = "";
+  for (let i = 0; i < 13; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i * 7);
+    const cut = new Date(d);
+    cut.setDate(cut.getDate() - 91);
+    const s = records.filter(r => r.date >= cut && r.date <= d)
+      .reduce((x, r) => x + r.amount, 0);
+    const tier =
+      Object.entries(TIER).reverse().find(([_, v]) => s >= v)?.[0] || "없음";
+    simEl.innerHTML += `
+      <tr>
+        <td>${d.toISOString().slice(0,10)}</td>
+        <td>${s.toLocaleString()}</td>
+        <td>${tier}</td>
+      </tr>`;
   }
 }
 
-function renderAll(){
-  renderSummary();
-  renderSimulation();
-}
-
-renderAll();
+render();
