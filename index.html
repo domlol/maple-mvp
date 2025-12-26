@@ -15,14 +15,12 @@ body.dark {
   --card:#1e1e1e;
   --text:#f1f1f1;
 }
-
 body {
   margin:0;
   font-family:system-ui,sans-serif;
   background:var(--bg);
   color:var(--text);
 }
-
 header {
   background:#2563eb;
   color:#fff;
@@ -30,46 +28,37 @@ header {
   font-size:20px;
   display:flex;
   justify-content:space-between;
-  align-items:center;
 }
-
 .container {
   max-width:1100px;
   margin:20px auto;
   padding:0 12px;
 }
-
 .grid {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:20px;
 }
-
 .card {
   background:var(--card);
   border-radius:12px;
   padding:18px;
 }
-
 input {
-  padding:10px 12px;
+  padding:12px;
   font-size:15px;
-  width:160px;
 }
-
 button {
   cursor:pointer;
 }
-
 .badge {
   display:inline-block;
-  padding:4px 14px;
+  padding:6px 14px;
   border-radius:999px;
-  font-size:13px;
+  font-size:14px;
   font-weight:600;
   color:#fff;
 }
-
 .badge-브론즈 {background:#cd7f32;}
 .badge-실버 {background:#9ca3af;}
 .badge-골드 {background:#facc15;color:#000;}
@@ -78,14 +67,23 @@ button {
 .badge-블랙 {background:#000;}
 
 .target-btn {
-  min-width:90px;
-  padding:8px 0;
-  margin:4px 4px 0 0;
+  width:100%;
+  max-width:110px;
+  padding:10px;
+  margin:4px;
   border:none;
-  border-radius:10px;
-  font-weight:600;
-  font-size:14px;
+  border-radius:999px;
+  font-weight:700;
   color:#fff;
+}
+
+.notice {
+  margin-top:10px;
+  padding:10px;
+  background:#fde68a;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:600;
 }
 
 table {
@@ -98,29 +96,13 @@ th,td {
   border-bottom:1px solid #ccc;
   text-align:center;
 }
-
-.notice {
-  margin-top:16px;
-  padding:12px 14px;
-  background:#fff3cd;
-  border:1px solid #ffecb5;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:600;
-  color:#7a4b00;
-}
-body.dark .notice {
-  background:#3a2f00;
-  border-color:#6b5200;
-  color:#ffe58a;
-}
 </style>
 </head>
 
 <body>
 <header>
   메이플스토리 MVP 계산기
-  <button onclick="document.body.classList.toggle('dark')">🌙 / ☀️</button>
+  <button onclick="document.body.classList.toggle('dark')">🌙/☀️</button>
 </header>
 
 <div class="container">
@@ -130,21 +112,21 @@ body.dark .notice {
 <div class="card">
   <h3>충전 기록 추가</h3>
   <input type="date" id="dateInput">
-  <input type="number" id="amountInput" placeholder="금액">
+  <input type="number" id="amountInput" placeholder="금액 (원)">
   <button onclick="addRecord()">추가</button>
   <button onclick="resetAll()">전체 초기화</button>
 
   <div class="notice">
-    ⚠ MVP 계산은 <b>캐시 충전일이 아닌 실제 캐시 사용 날짜</b> 기준입니다.
+    ⚠️ 캐시 충전일이 아닌 <b>캐시 사용 날짜</b>를 입력해야 정확합니다.
   </div>
 
-  <h4 style="margin-top:18px;">충전 기록</h4>
+  <h4>충전 기록</h4>
   <table>
     <thead><tr><th>날짜</th><th>금액</th><th>삭제</th></tr></thead>
     <tbody id="recordTable"></tbody>
   </table>
 
-  <h4 style="margin-top:18px;">목표 MVP 등급</h4>
+  <h4>목표 MVP 등급</h4>
   <div id="targetButtons"></div>
 </div>
 
@@ -152,12 +134,8 @@ body.dark .notice {
   <h3>📌 요약 정보</h3>
   <p>현재 등급: <span id="currentBadge"></span></p>
   <p>최근 13주 누적: <b id="totalText"></b></p>
-
-  <p style="margin-top:12px;">
-    목표 등급: <span id="targetBadge"></span>
-  </p>
-
-  <p id="goalText" style="margin-top:10px;"></p>
+  <p>목표 등급: <span id="targetBadge"></span></p>
+  <p id="goalText"></p>
 </div>
 
 </div>
@@ -185,33 +163,26 @@ const MVP = [
 let records=[];
 let target="레드";
 
-/* ✅ 가장 최근에 지난 목요일 (한국 기준) */
 function getLastThursday(base=new Date()){
   const d=new Date(base);
-  const day=d.getDay(); // 0~6
-  const diff=day>=4 ? day-4 : day+3;
+  const diff=(d.getDay()+3)%7;
   d.setDate(d.getDate()-diff);
   d.setHours(0,0,0,0);
   return d;
 }
 
-/* ✅ 한국 시간 날짜 포맷 */
-function formatDate(d){
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-
 function gradeByAmount(a){
-  let g=MVP[0];
+  let g=null;
   for(const m of MVP) if(a>=m.min) g=m;
   return g;
 }
 
 function calc13WeeksTotal(base){
-  const start=new Date(base);
-  start.setDate(start.getDate()-7*12);
+  const s=new Date(base);
+  s.setDate(s.getDate()-7*12);
   return records.filter(r=>{
     const d=new Date(r.date);
-    return d>=start && d<=base;
+    return d>=s && d<=base;
   }).reduce((t,r)=>t+r.amount,0);
 }
 
@@ -220,7 +191,6 @@ function addRecord(){
   records.push({date:dateInput.value,amount:+amountInput.value});
   update();
 }
-
 function resetAll(){records=[];update();}
 
 function update(){
@@ -237,20 +207,27 @@ function update(){
 
   targetButtons.innerHTML="";
   MVP.forEach(m=>{
-    targetButtons.innerHTML+=
-      `<button class="target-btn badge-${m.name}" onclick="target='${m.name}';update()">${m.name}</button>`;
+    targetButtons.innerHTML+=`
+    <button class="target-btn badge-${m.name}"
+      onclick="target='${m.name}';update()">${m.name}</button>`;
   });
 
-  const base=getLastThursday();
-  const total=calc13WeeksTotal(base);
+  const today=new Date();
+  today.setHours(23,59,59,999);
+
+  const base=getLastThursday(today);
+  const total=calc13WeeksTotal(today);
+
   const cur=gradeByAmount(total);
   const tar=MVP.find(m=>m.name===target);
 
-  currentBadge.innerHTML=`<span class="badge badge-${cur.name}">${cur.name}</span>`;
+  currentBadge.innerHTML=cur
+    ? `<span class="badge badge-${cur.name}">${cur.name}</span>`
+    : `없음`;
+
   targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
   totalText.innerText=total.toLocaleString()+"원";
 
-  /* 주차 시뮬레이션 */
   weekTable.innerHTML="";
   let breakDate=null;
 
@@ -259,29 +236,28 @@ function update(){
     d.setDate(d.getDate()+7*i);
     const sum=calc13WeeksTotal(d);
     const g=gradeByAmount(sum);
-    if(!breakDate && sum<tar.min) breakDate=d;
-
+    if(!breakDate && sum < tar.min) breakDate=d;
     weekTable.innerHTML+=`
     <tr>
-      <td>${formatDate(d)}</td>
+      <td>${d.toISOString().slice(0,10)}</td>
       <td>${sum.toLocaleString()}</td>
-      <td>${g.name}</td>
+      <td>${g ? g.name : "없음"}</td>
     </tr>`;
   }
 
-  /* 요약 문구 */
   if(total < tar.min){
-    goalText.innerHTML=`❌ 목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
+    goalText.innerHTML=
+      `❌ 목표 미달<br>
+       목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
+  } else if(breakDate){
+    const limit=new Date(breakDate);
+    limit.setDate(limit.getDate()-1);
+    const need=Math.max(0, tar.min - calc13WeeksTotal(breakDate));
+    goalText.innerHTML=
+      `${limit.toISOString().slice(0,10)} 23:59까지 사용 가능<br>
+       이후 유지를 위해 ${need.toLocaleString()}원 필요`;
   } else {
-    if(breakDate){
-      const keepLimit=new Date(breakDate);
-      keepLimit.setDate(keepLimit.getDate()-1);
-      goalText.innerHTML=
-        `✅ ${formatDate(keepLimit)} (수) 23:59까지 유지 <br>
-         이후 유지를 위해 ${(tar.min - calc13WeeksTotal(breakDate)).toLocaleString()}원 필요`;
-    } else {
-      goalText.innerHTML=`13주 동안 목표 등급 유지 중`;
-    }
+    goalText.innerHTML="계속 유지 가능";
   }
 }
 
