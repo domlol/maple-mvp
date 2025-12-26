@@ -172,3 +172,29 @@ function render() {
         document.getElementById("expireInfo").innerHTML = "";
     }
 }
+
+// -------------------------
+// 다크모드
+// -------------------------
+const themeToggle = document.getElementById("themeToggle");
+
+// 저장된 모드 불러오기
+let savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    themeToggle.textContent = "☀️ 라이트모드";
+}
+
+// 버튼 클릭 시 테마 변경
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("theme", "dark");
+        themeToggle.textContent = "☀️ 라이트모드";
+    } else {
+        localStorage.setItem("theme", "light");
+        themeToggle.textContent = "🌙 다크모드";
+    }
+});
