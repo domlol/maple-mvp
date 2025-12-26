@@ -1,9 +1,20 @@
 body {
+    background-color: #ffffff;   /* 흰색 */
+    color: #222;                 /* 짙은 회색 글씨 */
+    font-family: Arial, sans-serif;
     margin: 0;
-    font-family: "Pretendard", sans-serif;
-    background: linear-gradient(135deg, #4548ff, #7d2bff);
-    color: white;
+    padding: 20px;
 }
+
+/* 카드 배경도 더 밝게 */
+.card {
+    background-color: #f8f9fa;  
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
 
 header {
     text-align: center;
