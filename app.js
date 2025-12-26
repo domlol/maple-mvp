@@ -1,25 +1,54 @@
-let records = JSON.parse(localStorage.getItem("chargeRecords") || "[]");
-let targetTier = localStorage.getItem("targetTier");
-let chart;
+/*************************************************
+ * 전역 변수
+ *************************************************/
+let records = [];
+let targetTier = null;
 
 const tiers = {
-  브론즈: 150000,
-  실버: 300000,
-  골드: 600000,
-  다이아: 900000,
-  레드: 1500000,
-  블랙: 3000000
+  "브론즈": 150000,
+  "실버": 300000,
+  "골드": 600000,
+  "다이아": 900000,
+  "레드": 1500000,
+  "블랙": 3000000
 };
 
+/*************************************************
+ * 초기 로드
+ *************************************************/
+window.onload = () => {
+  load();
+  applySavedTheme();
+  updateAll();
+};
+
+/*************************************************
+ * 저장 / 불러오기
+ *************************************************/
 function save() {
-  localStorage.setItem("chargeRecords", JSON.stringify(records));
-  localStorage.setItem("targetTier", targetTier);
+  localStorage.setItem("mvpRecords", JSON.stringify(records));
+  localStorage.setItem("mvpTarget", targetTier);
 }
 
+function load() {
+  const r = localStorage.getItem("mvpRecords");
+  const t = localStorage.getItem("mvpTarget");
+
+  if (r) records = JSON.parse(r);
+  if (t) targetTier = t;
+}
+
+/*************************************************
+ * 기록 추가 / 삭제
+ *************************************************/
 function addRecord() {
-  const date = chargeDate.value;
-  const amount = Number(chargeAmount.value);
-  if (!date || !amount) return alert("날짜와 금액 입력");
+  const date = document.getElementById("chargeDate").value;
+  const amount = Number(document.getElementById("chargeAmount").value);
+
+  if (!date || !amount) {
+    alert("날짜와 금액을 입력해주세요!");
+    return;
+  }
 
   records.push({ date, amount });
   save();
@@ -27,124 +56,187 @@ function addRecord() {
 }
 
 function deleteRecord(i) {
-  if (!confirm("삭제할까요?")) return;
   records.splice(i, 1);
   save();
   updateAll();
 }
 
+/*************************************************
+ * 목표 MVP 설정
+ *************************************************/
+function setTarget(tier) {
+  targetTier = tier;
+  save();
+  updateAll();
+}
+
+/*************************************************
+ * 전체 초기화
+ *************************************************/
 function resetAll() {
-  if (!confirm("모두 초기화할까요?")) return;
+  if (!confirm("정말 모든 데이터를 삭제하시겠습니까?")) return;
   records = [];
+  targetTier = null;
   save();
   updateAll();
 }
 
-function setTarget(t) {
-  targetTier = t;
-  save();
-  updateAll();
-}
-
-function get13WeekSum(base = new Date()) {
-  const start = new Date(base);
-  start.setDate(start.getDate() - 91);
-  return records.filter(r => {
-    const d = new Date(r.date);
-    return d >= start && d <= base;
-  }).reduce((s, r) => s + r.amount, 0);
-}
-
-function getTier(sum) {
-  let t = "무등급";
-  for (let k in tiers) if (sum >= tiers[k]) t = k;
-  return t;
-}
-
-function updateAll() {
-  const today = new Date();
-  const sum = get13WeekSum(today);
-  const tier = getTier(sum);
-
-  todayTier.innerText = `📅 오늘 기준 등급: ${tier}`;
-  totalAmount.innerText = `13주 누적: ${sum.toLocaleString()}원`;
-  currentTier.innerText = `현재 등급: ${tier}`;
-
-  tierRemainInfo.innerText =
-    tier !== "무등급"
-      ? `등급 기준 남는 금액: ${(sum - tiers[tier]).toLocaleString()}원`
-      : "";
-
-  renderSimulation();
-  renderExpire();
-  renderRecords();
-  renderChart();
-}
-
-function renderSimulation() {
-  simulationTable.innerHTML =
-    "<tr><th>기준 날짜</th><th>예상 누적</th><th>예상 등급</th></tr>";
-
-  for (let w = 0; w <= 13; w++) {
-    const d = new Date();
-    d.setDate(d.getDate() + w * 7);
-    const s = get13WeekSum(d);
-    simulationTable.innerHTML +=
-      `<tr><td>${d.toISOString().slice(0,10)}</td><td>${s.toLocaleString()}원</td><td>${getTier(s)}</td></tr>`;
+/*************************************************
+ * 핵심 계산
+ *************************************************/
+function getCurrentTier(sum) {
+  let tier = "무등급";
+  for (let t in tiers) {
+    if (sum >= tiers[t]) tier = t;
   }
+  return tier;
 }
 
-function renderExpire() {
-  expireList.innerHTML = "";
+/*************************************************
+ * 전체 갱신
+ *************************************************/
+function updateAll() {
+  // 날짜순 정렬
+  records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
   const today = new Date();
+
+  // 13주(91일) 유효 기록만 계산
+  const validRecords = records.filter(r => {
+    const d = new Date(r.date);
+    const diff = (today - d) / 86400000;
+    return diff <= 91;
+  });
+
+  const sum = validRecords.reduce((s, r) => s + r.amount, 0);
+
+  // ================= 요약 =================
+  document.getElementById("totalAmount").innerText =
+    `최근 13주 누적 금액: ${sum.toLocaleString()}원`;
+
+  const currentTier = getCurrentTier(sum);
+  document.getElementById("currentTier").innerText =
+    `현재 등급: ${currentTier}`;
+
+  document.getElementById("todayTier").innerText =
+    `📅 오늘 기준 등급: ${currentTier}`;
+
+  if (currentTier !== "무등급") {
+    const remain = sum - tiers[currentTier];
+    document.getElementById("tierRemainInfo").innerText =
+      `현재 등급 기준 남는 금액: ${remain.toLocaleString()}원`;
+  } else {
+    document.getElementById("tierRemainInfo").innerText = "";
+  }
+
+  // ================= 목표 MVP =================
+  const targetInfo = document.getElementById("targetInfo");
+  const targetGuide = document.getElementById("targetTierGuide");
+
+  if (targetTier) {
+    const need = tiers[targetTier] - sum;
+    targetInfo.innerText = `🎯 목표 MVP: ${targetTier}`;
+
+    if (need > 0) {
+      targetGuide.innerText =
+        `목표 달성까지 ${need.toLocaleString()}원 부족`;
+    } else {
+      targetGuide.innerText =
+        `🎉 목표 MVP 달성 완료!`;
+    }
+  } else {
+    targetInfo.innerText = "";
+    targetGuide.innerText = "목표 MVP를 선택해주세요.";
+  }
+
+  // ================= 등급 하락 안내 =================
+  let dropDate = null;
+
+  validRecords.forEach(r => {
+    const d = new Date(r.date);
+    d.setDate(d.getDate() + 91);
+    if (!dropDate || d < dropDate) dropDate = d;
+  });
+
+  if (dropDate) {
+    document.getElementById("dropInfo").innerText =
+      `⚠️ 가장 빠른 금액 소멸일: ${dropDate.toISOString().slice(0, 10)}`;
+  } else {
+    document.getElementById("dropInfo").innerText = "";
+  }
+
+  // ================= 기록 리스트 =================
+  const list = document.getElementById("recordList");
+  list.innerHTML = "";
+
+  records.forEach((r, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${r.date} - ${r.amount.toLocaleString()}원
+      <span class="delete" onclick="deleteRecord(${i})">❌</span>
+    `;
+    list.appendChild(li);
+  });
+
+  // ================= 소멸 리스트 =================
+  const expireList = document.getElementById("expireList");
+  expireList.innerHTML = "";
 
   records.forEach(r => {
-    const d = new Date(r.date);
-    const exp = new Date(d);
-    exp.setDate(exp.getDate() + 91);
-    const dd = Math.ceil((exp - today) / 86400000);
+    const start = new Date(r.date);
+    const expire = new Date(start);
+    expire.setDate(expire.getDate() + 91);
 
-    expireList.innerHTML +=
-      `<li>${r.date} → 소멸 D-${dd} (${exp.toISOString().slice(0,10)}) / ${r.amount.toLocaleString()}원</li>`;
+    const dday = Math.ceil((expire - today) / 86400000);
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${r.date} → 소멸까지 D-${dday}
+      (${expire.getFullYear()}-${expire.getMonth() + 1}-${expire.getDate()})
+      / <b>${r.amount.toLocaleString()}원</b>
+    `;
+    expireList.appendChild(li);
   });
+
+  highlightTarget();
 }
 
-function renderRecords() {
-  recordList.innerHTML = "";
-  records.forEach((r, i) => {
-    recordList.innerHTML +=
-      `<li>${r.date} / ${r.amount.toLocaleString()}원
-       <button onclick="deleteRecord(${i})">삭제</button></li>`;
-  });
-}
+/*************************************************
+ * 목표 버튼 강조
+ *************************************************/
+function highlightTarget() {
+  document.querySelectorAll(".target-buttons button")
+    .forEach(b => b.classList.remove("active"));
 
-function renderChart() {
-  const labels = [];
-  const data = [];
-
-  for (let w = 13; w >= 0; w--) {
-    const d = new Date();
-    d.setDate(d.getDate() - w * 7);
-    labels.push(d.toISOString().slice(5,10));
-    data.push(get13WeekSum(d));
+  if (targetTier) {
+    const btn = [...document.querySelectorAll(".target-buttons button")]
+      .find(b => b.innerText === targetTier);
+    if (btn) btn.classList.add("active");
   }
-
-  if (chart) chart.destroy();
-  chart = new Chart(trendChart, {
-    type: "line",
-    data: {
-      labels,
-      datasets: [{
-        label: "13주 누적 금액",
-        data,
-        borderWidth: 2
-      }]
-    }
-  });
 }
 
-themeToggle.onclick = () => {
-  document.body.classList.toggle("dark");
-};
+/*************************************************
+ * 다크모드
+ *************************************************/
+function applySavedTheme() {
+  const saved = localStorage.getItem("theme");
+  const btn = document.getElementById("themeToggle");
 
-updateAll();
+  if (saved === "dark") {
+    document.body.classList.add("dark");
+    btn.innerText = "☀️ 라이트모드";
+  }
+}
+
+document.getElementById("themeToggle").addEventListener("click", () => {
+  const btn = document.getElementById("themeToggle");
+  document.body.classList.toggle("dark");
+
+  if (document.body.classList.contains("dark")) {
+    localStorage.setItem("theme", "dark");
+    btn.innerText = "☀️ 라이트모드";
+  } else {
+    localStorage.setItem("theme", "light");
+    btn.innerText = "🌙 다크모드";
+  }
+});
