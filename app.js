@@ -196,5 +196,30 @@ themeToggle.addEventListener("click", () => {
     } else {
         localStorage.setItem("theme", "light");
         themeToggle.textContent = "🌙 다크모드";
+
+        // -------------------------
+// 다크모드 기능
+// -------------------------
+const themeToggle = document.getElementById("themeToggle");
+let savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+    document.body.classList.add("dark-mode");
+    themeToggle.textContent = "☀️ 라이트모드";
+}
+
+// 클릭 시 테마 변경
+themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+
+    if (document.body.classList.contains("dark-mode")) {
+        localStorage.setItem("theme", "dark");
+        themeToggle.textContent = "☀️ 라이트모드";
+    } else {
+        localStorage.setItem("theme", "light");
+        themeToggle.textContent = "🌙 다크모드";
+    }
+});
+
     }
 });
