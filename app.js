@@ -1,147 +1,175 @@
 let records = [];
-let goalRank = null;
+let selectedTarget = null;
 
-const RANK_PRICE = {
-    "브론즈": 150000,
-    "실버": 300000,
-    "골드": 600000,
-    "다이아": 900000,
-    "레드": 1500000,
-    "블랙": 3000000
+const tierTable = {
+    "브론즈": 30000,
+    "실버": 60000,
+    "골드": 150000,
+    "다이아": 300000,
+    "레드": 500000
 };
 
+// ----------------------------
+//      LocalStorage 로드
+// ----------------------------
+window.onload = function () {
+    loadData();
+    render();
+};
+
+function saveData() {
+    localStorage.setItem("mvpData", JSON.stringify(records));
+    localStorage.setItem("mvpTarget", selectedTarget);
+}
+
+function loadData() {
+    const recordData = localStorage.getItem("mvpData");
+    const targetData = localStorage.getItem("mvpTarget");
+
+    if (recordData) records = JSON.parse(recordData);
+    if (targetData) selectedTarget = targetData;
+}
+
+// ----------------------------
+//      기록 추가
+// ----------------------------
 function addRecord() {
-    const date = document.getElementById("dateInput").value;
-    const amount = Number(document.getElementById("amountInput").value);
+    const date = document.getElementById("chargeDate").value;
+    const amount = Number(document.getElementById("chargeAmount").value);
 
     if (!date || !amount) {
-        alert("날짜와 금액을 입력하세요.");
+        alert("날짜와 금액을 입력해주세요!");
         return;
     }
 
-    records.push({ date: new Date(date), amount });
-    updateUI();
+    records.push({ date, amount });
+    saveData();
+    render();
 }
 
-function updateUI() {
-    drawList();
-    calcAll();
+// ----------------------------
+//      기록 삭제
+// ----------------------------
+function deleteRecord(index) {
+    records.splice(index, 1);
+    saveData();
+    render();
 }
 
-function drawList() {
+// ----------------------------
+//      목표 등급 설정
+// ----------------------------
+function setTarget(tier) {
+    selectedTarget = tier;
+    saveData();
+    render();
+}
+
+// ----------------------------
+//      전체 초기화
+// ----------------------------
+function resetAll() {
+    if (!confirm("정말 모든 데이터를 삭제하시겠습니까?")) return;
+
+    records = [];
+    selectedTarget = null;
+    saveData();
+    render();
+}
+
+// ----------------------------
+//      렌더링
+// ----------------------------
+function render() {
+
+    // 기록 정렬 (오래된 날짜 → 최신)
+    records.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // 총 금액 계산
+    const total = records.reduce((sum, r) => sum + r.amount, 0);
+    document.getElementById("totalAmount").innerHTML =
+        `총 누적 금액: <b>${total.toLocaleString()}원</b>`;
+
+    // 현재 등급 계산
+    let current = "무등급";
+    for (let key in tierTable) {
+        if (total >= tierTable[key]) current = key;
+    }
+    document.getElementById("currentTier").innerHTML =
+        `현재 등급: <b>${current}</b>`;
+
+    // 다음 등급 정보
+    let nextTier = null;
+    for (let key in tierTable) {
+        if (total < tierTable[key]) {
+            nextTier = key;
+            break;
+        }
+    }
+    if (nextTier) {
+        const diff = tierTable[nextTier] - total;
+        document.getElementById("nextTierInfo").innerHTML =
+            `다음 등급(${nextTier})까지 <b>${diff.toLocaleString()}원</b> 부족`;
+    } else {
+        document.getElementById("nextTierInfo").innerHTML =
+            `이미 최고 등급입니다 👍`;
+    }
+
+    // 목표 등급 계산
+    if (selectedTarget) {
+        const need = tierTable[selectedTarget] - total;
+        document.getElementById("targetInfo").innerHTML =
+            `현재 목표 등급: <b>${selectedTarget}</b>`;
+        document.getElementById("targetTierInfo").innerHTML =
+            need > 0
+                ? `목표 등급까지 <b>${need.toLocaleString()}원</b> 부족`
+                : `이미 목표 등급 이상입니다`;
+    } else {
+        document.getElementById("targetInfo").innerHTML = "";
+        document.getElementById("targetTierInfo").innerHTML = "";
+    }
+
+    // 기록 리스트 표시
     const list = document.getElementById("recordList");
     list.innerHTML = "";
-
     records.forEach((r, i) => {
         const li = document.createElement("li");
-        li.innerHTML = `
-            ${r.date.toISOString().split('T')[0]} — ${r.amount.toLocaleString()}원
-            <button class="deleteBtn" onclick="deleteRecord(${i})">삭제</button>
-        `;
+        li.innerHTML = `${r.date} - ${r.amount.toLocaleString()}원 
+            <span class="delete" onclick="deleteRecord(${i})">❌</span>`;
         list.appendChild(li);
     });
-}
 
-function deleteRecord(i) {
-    records.splice(i, 1);
-    updateUI();
-}
+    // ----------------------------
+    //      소멸 예정 리스트
+    // ----------------------------
+    const expireList = document.getElementById("expireList");
+    expireList.innerHTML = "";
 
-function calcAll() {
-    const now = new Date();
-    const ago13 = new Date();
-    ago13.setDate(now.getDate() - 91);
-
-    let total = 0;
+    const today = new Date();
 
     records.forEach(r => {
-        if (r.date >= ago13) total += r.amount;
+        const day = new Date(r.date);
+        const expireDay = new Date(day);
+        expireDay.setDate(expireDay.getDate() + (13 * 7));
+
+        const diff = Math.ceil((expireDay - today) / (1000 * 60 * 60 * 24));
+
+        const li = document.createElement("li");
+        li.innerHTML = `${r.date} → 소멸까지 D-${diff} / ${r.amount.toLocaleString()}원`;
+        expireList.appendChild(li);
     });
 
-    document.getElementById("totalArea").textContent = total.toLocaleString() + " 원";
-    document.getElementById("rankArea").textContent = getRank(total);
+    // 가장 오래된 기록의 소멸까지 D-day
+    if (records.length > 0) {
+        const oldest = new Date(records[0].date);
+        const exp = new Date(oldest);
+        exp.setDate(exp.getDate() + 91);
 
-    showExpireInfo();
-    showNeedInfo(total);
-    updateGoalNeed(total);
-}
+        const dday = Math.ceil((exp - today) / 86400000);
 
-function getRank(total) {
-    if (total >= 3000000) return "블랙";
-    if (total >= 1500000) return "레드";
-    if (total >= 900000) return "다이아";
-    if (total >= 600000) return "골드";
-    if (total >= 300000) return "실버";
-    if (total >= 150000) return "브론즈";
-    return "등급 없음";
-}
-
-/* A) 소멸 예정 정보 */
-function showExpireInfo() {
-    if (records.length === 0) {
-        document.getElementById("expireInfo").textContent = "-";
-        return;
+        document.getElementById("expireInfo").innerHTML =
+            `등급 유지 소멸까지 <b>D-${dday}</b>`;
+    } else {
+        document.getElementById("expireInfo").innerHTML = "";
     }
-
-    let oldest = records[0].date;
-    records.forEach(r => {
-        if (r.date < oldest) oldest = r.date;
-    });
-
-    const expireDate = new Date(oldest);
-    expireDate.setDate(expireDate.getDate() + 91);
-
-    const now = new Date();
-    const diff = Math.ceil((expireDate - now) / (1000 * 60 * 60 * 24));
-
-    document.getElementById("expireInfo").textContent =
-        `가장 오래된 충전 소멸: ${expireDate.toISOString().split('T')[0]} (D-${diff})`;
-}
-
-/* C) 부족 금액 계산 */
-function showNeedInfo(total) {
-    const rank = getRank(total);
-
-    const next = {
-        "등급 없음": "브론즈",
-        "브론즈": "실버",
-        "실버": "골드",
-        "골드": "다이아",
-        "다이아": "레드",
-        "레드": "블랙",
-        "블랙": null
-    }[rank];
-
-    if (!next) {
-        document.getElementById("needInfo").textContent = "최고 등급입니다!";
-        return;
-    }
-
-    const need = RANK_PRICE[next] - total;
-    document.getElementById("needInfo").textContent =
-        `${next} 등급까지 ${need.toLocaleString()}원 필요`;
-}
-
-/* B) 목표 등급 선택 */
-function setGoal(rank) {
-    goalRank = rank;
-    document.getElementById("goalText").textContent = rank;
-    calcAll();
-}
-
-function updateGoalNeed(total) {
-    if (!goalRank) {
-        document.getElementById("goalNeed").textContent = "-";
-        return;
-    }
-
-    const need = RANK_PRICE[goalRank] - total;
-
-    if (need <= 0) {
-        document.getElementById("goalNeed").textContent = "이미 달성됨!";
-        return;
-    }
-
-    document.getElementById("goalNeed").textContent =
-        `${need.toLocaleString()}원 필요`;
 }
