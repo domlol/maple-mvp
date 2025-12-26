@@ -1,192 +1,153 @@
+/* ===========================
+   기본 설정
+=========================== */
+
+:root {
+  --bg: #ffffff;
+  --text: #222222;
+  --card-bg: #ffffff;
+  --border: #000000;
+  --button-bg: #ffffff;
+  --button-text: #000000;
+  --accent: #007bff;
+}
+
+/* 다크모드 */
+.dark {
+  --bg: #1f1f1f;
+  --text: #f5f5f5;
+  --card-bg: #2a2a2a;
+  --border: #f5f5f5;
+  --button-bg: #333333;
+  --button-text: #ffffff;
+  --accent: #4da3ff;
+}
+
 body {
-    background-color: #ffffff;   /* 흰색 */
-    color: #222;                 /* 짙은 회색 글씨 */
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 20px;
+  margin: 0;
+  padding: 0;
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* 카드 배경도 더 밝게 */
-.card {
-    background-color: #f8f9fa;  
-    padding: 15px;
-    margin-bottom: 15px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-
-header {
-    text-align: center;
-    padding: 30px 10px;
-}
+/* ===========================
+   컨테이너
+=========================== */
 
 .container {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-    justify-content: center;
-    flex-wrap: wrap;
+  max-width: 420px;
+  margin: 40px auto;
+  padding: 20px;
 }
+
+/* ===========================
+   카드
+=========================== */
 
 .card {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    padding: 20px;
-    border-radius: 18px;
-    width: 420px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
 }
 
-h2 { margin-top: 0; }
+/* ===========================
+   입력 영역
+=========================== */
 
-.input-group {
-    margin-bottom: 12px;
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
 }
 
-.input-group input {
-    width: 100%;
-    padding: 10px;
-    border-radius: 10px;
-    border: none;
-}
+/* ===========================
+   버튼
+=========================== */
 
 button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    background: #fff;
-    border-radius: 12px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-bottom: 10px;
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--button-bg);
+  color: var(--button-text);
+  cursor: pointer;
+  transition: 0.2s;
 }
 
 button:hover {
-    background: #e7e7e7;
+  background: var(--accent);
+  color: white;
 }
 
-.target-buttons button {
-    width: 48%;
-    margin: 1%;
+/* ===========================
+   리스트 / 항목
+=========================== */
+
+.item {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 8px 0;
+  background: var(--card-bg);
 }
 
-ul {
-    list-style: none;
-    padding: 0;
+/* ===========================
+   MVP 등급 색상 라벨
+=========================== */
+.mvp-label {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
 }
 
-li {
-    background: rgba(255,255,255,0.1);
-    padding: 10px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
+.mvp-silver { background: #c0c0c0; color:#000; }
+.mvp-gold { background: #ffcc00; color:#000; }
+.mvp-red { background: #ff4444; }
+.mvp-black { background: #000000; }
+
+/* ===========================
+   다크모드 스위치
+=========================== */
+
+.dark-toggle {
+  cursor: pointer;
+  padding: 10px;
+  display: inline-block;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--button-bg);
+  color: var(--text);
+  margin-bottom: 20px;
 }
 
-li span.delete {
-    cursor: pointer;
-    color: #ffdddd;
+.dark-toggle:hover {
+  background: var(--accent);
+  color: #fff;
 }
 
-.danger {
-    background: #ff4a4a;
-    color: white;
-}
+/* ===========================
+   모바일 최적화
+=========================== */
 
-.autosave {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
-/* 📱 모바일 최적화 */
-@media (max-width: 768px) {
-    .container {
-        flex-direction: column;
-        padding: 10px;
-    }
-
-    .card {
-        width: 100%;
-    }
-}
-
-/* 다크모드 테마 */
-.dark-mode {
-    background-color: #1e1e1e;
-    color: #e8e8e8;
-}
-
-.dark-mode .card {
-    background-color: #2c2c2c;
-    box-shadow: 0 2px 5px rgba(255,255,255,0.05);
-}
-
-/* 버튼 스타일 */
-.dark-btn {
-    background: #ececec;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 20px;
-}
-
-.dark-mode .dark-btn {
-    background: #444;
-
-    /* 버튼, 입력박스 기본 테두리 */
-button, input, select {
-    border: 2px solid #000;        /* 검은 테두리 */
-    background: #fff;
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* 카드 박스 */
-.card {
-    background: #f9f9f9;           /* 밝은 회색 */
-    border: 1px solid #ccc;        /* 옅은 테두리 */
+@media (max-width: 480px) {
+  .container {
+    margin: 20px auto;
     padding: 15px;
-    border-radius: 12px;
-    margin-bottom: 15px;
-}
-
-/* ===== 다크모드 ===== */
-.dark-mode {
-    background: #1e1e1e;
-    color: #f5f5f5;
-}
-
-.dark-mode .card {
-    background: #2a2a2a;
-    border: 1px solid #555;
-}
-
-/* 다크모드 버튼 */
-.dark-btn {
-    background: #fff;
-    color: #000;
-    border: 2px solid #000;
-}
-
-/* 다크모드 버튼 스타일 변경 */
-.dark-mode .dark-btn {
-    background: #444;
-    color: #fff;
-    border: 2px solid #ddd;
-}
-
-/* 입력창 다크모드 */
-.dark-mode input,
-.dark-mode select,
-.dark-mode button {
-    background: #333;
-    color: #fff;
-    border: 2px solid #aaa;
-}
-
-    color: #fff;
+  }
+  button {
+    padding: 14px;
+  }
 }
