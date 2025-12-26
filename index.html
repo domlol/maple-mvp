@@ -1,239 +1,284 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>메이플스토리 MVP 계산기</title>
+
 <style>
 :root {
-  --bg: #f4f6f8;
-  --card: #ffffff;
-  --text: #222;
-  --sub: #666;
-  --blue: #2563eb;
+  --bg:#f4f6f8;
+  --card:#ffffff;
+  --text:#222;
+  --sub:#666;
 }
-body.dark {
-  --bg: #121212;
-  --card: #1e1e1e;
-  --text: #f1f1f1;
-  --sub: #aaa;
-}
+
 body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, sans-serif;
+  margin:0;
+  font-family: Pretendard, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
 }
+
 header {
-  background: var(--blue);
-  color: #fff;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
+  background:#2563eb;
+  color:#fff;
+  padding:20px;
+  font-size:22px;
+  font-weight:700;
 }
+
 .container {
-  max-width: 1100px;
-  margin: 20px auto;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  max-width:1100px;
+  margin:30px auto;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
 }
+
 .card {
-  background: var(--card);
-  border-radius: 12px;
-  padding: 20px;
+  background:var(--card);
+  border-radius:14px;
+  padding:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,.05);
 }
+
+h3 { margin-top:0; }
+
 input {
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  box-sizing: border-box;
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
+
 button {
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
+  padding:8px 14px;
+  border-radius:8px;
+  border:none;
+  cursor:pointer;
 }
-button.primary { background: var(--blue); color: #fff; }
-button.danger { background: #ef4444; color: #fff; }
+
+.btn-add { background:#2563eb; color:#fff; }
+.btn-reset { background:#ef4444; color:#fff; }
 
 .badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-weight: bold;
-  font-size: 14px;
+  display:inline-block;
+  padding:4px 10px;
+  border-radius:999px;
+  font-weight:700;
+  color:#fff;
+  margin-left:6px;
+  font-size:13px;
 }
-.bronze { background:#cd7f32;color:#fff }
-.silver { background:#9ca3af;color:#fff }
-.gold { background:#facc15;color:#000 }
-.diamond { background:#38bdf8;color:#000 }
-.red { background:#ef4444;color:#fff }
-.black { background:#000;color:#fff }
 
-.summary-box {
-  margin-top: 14px;
-  padding: 14px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.04);
-}
+.mvp-bronze { background:#cd7f32; }
+.mvp-silver { background:#9ca3af; }
+.mvp-gold { background:#facc15; color:#000; }
+.mvp-diamond { background:#22d3ee; color:#000; }
+.mvp-red { background:#ef4444; }
+.mvp-black { background:#111827; }
 
 table {
   width:100%;
-  border-collapse: collapse;
+  border-collapse:collapse;
+  margin-top:10px;
 }
-th,td {
-  padding: 10px;
-  border-bottom:1px solid #ddd;
-  text-align: center;
+
+th, td {
+  padding:8px;
+  border-bottom:1px solid #e5e7eb;
+  text-align:center;
+}
+
+.mvp-buttons button {
+  margin:6px 6px 0 0;
+}
+
+.summary-box {
+  margin-top:14px;
+  padding:14px;
+  background:#f9fafb;
+  border-radius:10px;
 }
 </style>
 </head>
 
 <body>
-<header>
-  <div>메이플스토리 MVP 계산기</div>
-  <button onclick="toggleTheme()">🌙</button>
-</header>
+<header>메이플스토리 MVP 계산기</header>
 
 <div class="container">
+  <!-- 왼쪽 -->
   <div class="card">
     <h3>충전 기록 추가</h3>
+
     <label>캐시 사용 날짜</label>
     <input type="date" id="dateInput">
+
     <label>금액</label>
     <input type="number" id="amountInput">
-    <br><br>
-    <button class="primary" onclick="addCharge()">추가</button>
-    <button class="danger" onclick="resetAll()">전체 초기화</button>
 
-    <h4>충전 기록</h4>
+    <div style="margin-top:10px">
+      <button class="btn-add" onclick="addCharge()">추가</button>
+      <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
+    </div>
+
+    <p style="color:#f97316; font-size:13px; margin-top:10px">
+      ⚠ MVP 계산은 캐시 충전일이 아닌 실제 사용 날짜 기준입니다.
+    </p>
+
+    <h3>충전 기록</h3>
     <table>
       <thead>
         <tr><th>날짜</th><th>금액</th><th>소멸</th></tr>
       </thead>
-      <tbody id="history"></tbody>
+      <tbody id="chargeList"></tbody>
     </table>
 
-    <h4>목표 MVP 등급</h4>
-    <div id="targetBtns"></div>
+    <h3>목표 MVP 등급</h3>
+    <div class="mvp-buttons">
+      <button onclick="setTarget('브론즈')">브론즈</button>
+      <button onclick="setTarget('실버')">실버</button>
+      <button onclick="setTarget('골드')">골드</button>
+      <button onclick="setTarget('다이아')">다이아</button>
+      <button onclick="setTarget('레드')">레드</button>
+      <button onclick="setTarget('블랙')">블랙</button>
+    </div>
   </div>
 
+  <!-- 오른쪽 -->
   <div class="card">
     <h3>📌 요약 정보</h3>
     <div id="summary"></div>
   </div>
 </div>
 
-<div class="container">
-  <div class="card" style="grid-column:1/3">
-    <h3>📊 주차별 예상 등급 시뮬레이션</h3>
-    <table>
-      <thead>
-        <tr><th>기준 날짜</th><th>예상 누적</th><th>등급</th></tr>
-      </thead>
-      <tbody id="weekly"></tbody>
-    </table>
-  </div>
+<div class="card" style="max-width:1100px;margin:0 auto 40px">
+  <h3>📊 주차별 예상 등급 시뮬레이션</h3>
+  <table>
+    <thead>
+      <tr><th>기준 날짜</th><th>예상 누적</th><th>등급</th></tr>
+    </thead>
+    <tbody id="weekly"></tbody>
+  </table>
 </div>
 
 <script>
-const MVP = [
-  {name:"브론즈", value:150000, cls:"bronze"},
-  {name:"실버", value:300000, cls:"silver"},
-  {name:"골드", value:600000, cls:"gold"},
-  {name:"다이아", value:900000, cls:"diamond"},
-  {name:"레드", value:1500000, cls:"red"},
-  {name:"블랙", value:3000000, cls:"black"},
-];
-let charges = JSON.parse(localStorage.getItem("charges")||"[]");
+const MVP = {
+  브론즈:150000, 실버:300000, 골드:600000,
+  다이아:900000, 레드:1500000, 블랙:3000000
+};
+
+let charges = [];
 let target = null;
 
-function toggleTheme(){
-  document.body.classList.toggle("dark");
+function getBadge(grade){
+  const cls = {
+    브론즈:'bronze', 실버:'silver', 골드:'gold',
+    다이아:'diamond', 레드:'red', 블랙:'black'
+  }[grade];
+  return `<span class="badge mvp-${cls}">${grade}</span>`;
 }
-function save(){ localStorage.setItem("charges",JSON.stringify(charges)); }
 
 function addCharge(){
   const d = dateInput.value;
-  const a = Number(amountInput.value);
-  if(!d||!a) return;
-  charges.push({date:d,amount:a});
-  save(); render();
+  const a = +amountInput.value;
+  if(!d || !a) return;
+
+  charges.push({
+    date:new Date(d),
+    amount:a,
+    expire:new Date(new Date(d).getTime()+90*86400000)
+  });
+
+  dateInput.value='';
+  amountInput.value='';
+  updateAll();   // 🔴 핵심 수정
 }
 
 function resetAll(){
-  charges=[]; save(); render();
+  charges=[];
+  target=null;
+  updateAll();
 }
 
-function getTotal(base){
-  const b=new Date(base);
-  return charges.filter(c=>{
-    const u=new Date(c.date);
-    const e=new Date(u); e.setDate(e.getDate()+91);
-    return u<=b && e>b;
-  }).reduce((s,c)=>s+c.amount,0);
-}
-function getGrade(amount){
-  return [...MVP].reverse().find(g=>amount>=g.value)||{name:"없음"};
+function setTarget(t){
+  target=t;
+  updateAll();
 }
 
-function render(){
-  history.innerHTML="";
-  charges.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  charges.forEach(c=>{
-    const e=new Date(c.date); e.setDate(e.getDate()+91);
-    history.innerHTML+=`<tr><td>${c.date}</td><td>${c.amount.toLocaleString()}</td><td>${e.toISOString().slice(0,10)}</td></tr>`;
+function calcSum(base){
+  return charges
+    .filter(c=>c.date<=base && c.expire>=base)
+    .reduce((s,c)=>s+c.amount,0);
+}
+
+function getGrade(sum){
+  return Object.keys(MVP).reverse().find(g=>sum>=MVP[g]) || '없음';
+}
+
+function updateAll(){
+  renderList();
+  renderSummary();
+  renderWeekly();
+}
+
+function renderList(){
+  chargeList.innerHTML='';
+  charges.sort((a,b)=>b.date-a.date).forEach(c=>{
+    chargeList.innerHTML+=`
+      <tr>
+        <td>${c.date.toISOString().slice(0,10)}</td>
+        <td>${c.amount.toLocaleString()}</td>
+        <td>${c.expire.toISOString().slice(0,10)}</td>
+      </tr>`;
   });
+}
 
-  const today=new Date();
-  const total=getTotal(today);
-  const grade=getGrade(total);
+function renderSummary(){
+  const now=new Date();
+  const sum=calcSum(now);
+  const grade=getGrade(sum);
 
-  let summaryHTML = `
-    현재 등급: <span class="badge ${grade.cls||""}">${grade.name}</span><br>
-    최근 13주 누적: ${total.toLocaleString()}원
-  `;
+  let html=`현재 등급: ${grade!=='없음'?getBadge(grade):'없음'}<br>
+            최근 13주 누적: ${sum.toLocaleString()}원`;
 
   if(target){
-    if(total>=target.value){
-      const expireDates = charges.map(c=>{
-        const d=new Date(c.date); d.setDate(d.getDate()+91); return d;
-      }).sort((a,b)=>a-b);
-      summaryHTML+=`
+    if(sum>=MVP[target]){
+      const minExpire = Math.min(...charges.map(c=>c.expire));
+      html+=`
         <div class="summary-box">
-        ✅ 목표 달성 (${target.name})<br>
-        ${expireDates[0].toISOString().slice(0,10)} 까지 유지 가능
+          🎯 목표 등급: ${getBadge(target)}<br>
+          ✅ 목표 달성<br>
+          📅 ${minExpire.toISOString().slice(0,10)} 까지 유지 가능
         </div>`;
-    }else{
-      summaryHTML+=`
+    } else {
+      html+=`
         <div class="summary-box">
-        ❌ 목표 미달 (${target.name})<br>
-        ${(target.value-total).toLocaleString()}원 추가 필요
+          🎯 목표 등급: ${getBadge(target)}<br>
+          ❌ ${(MVP[target]-sum).toLocaleString()}원 추가 필요
         </div>`;
     }
   }
-  summary.innerHTML=summaryHTML;
+  summary.innerHTML=html;
+}
 
-  weekly.innerHTML="";
-  for(let i=0;i<9;i++){
-    const d=new Date(); d.setDate(d.getDate()+i*7);
-    const t=getTotal(d);
-    const g=getGrade(t);
+function renderWeekly(){
+  weekly.innerHTML='';
+  for(let i=0;i<13;i++){
+    const d=new Date();
+    d.setDate(d.getDate()+i*7);
+    const sum=calcSum(d);
     weekly.innerHTML+=`
-      <tr><td>${d.toISOString().slice(0,10)}</td>
-      <td>${t.toLocaleString()}</td><td>${g.name}</td></tr>`;
+      <tr>
+        <td>${d.toISOString().slice(0,10)}</td>
+        <td>${sum.toLocaleString()}</td>
+        <td>${getGrade(sum)}</td>
+      </tr>`;
   }
 }
 
-const btns=document.getElementById("targetBtns");
-MVP.forEach(g=>{
-  const b=document.createElement("button");
-  b.textContent=g.name;
-  b.onclick=()=>{target=g;render();}
-  btns.appendChild(b);
-});
-
-render();
+updateAll();
 </script>
 </body>
 </html>
