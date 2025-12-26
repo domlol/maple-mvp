@@ -1,108 +1,69 @@
-/* 🔥 핵심: 삐져나옴 방지 */
 * {
   box-sizing: border-box;
-}
-
-:root {
-  --bg: #ffffff;
-  --text: #222;
-  --card-bg: #ffffff;
-  --border: #000;
-  --button-bg: #ffffff;
-  --button-text: #000;
-  --accent: #007bff;
-}
-
-.dark {
-  --bg: #1f1f1f;
-  --text: #f5f5f5;
-  --card-bg: #2a2a2a;
-  --border: #f5f5f5;
-  --button-bg: #333;
-  --button-text: #fff;
-  --accent: #4da3ff;
 }
 
 body {
   margin: 0;
   font-family: "Noto Sans KR", sans-serif;
-  background: var(--bg);
-  color: var(--text);
+  background: #f5f5f5;
 }
 
-/* 상단 */
 header {
   text-align: center;
-  margin-top: 20px;
+  padding: 20px;
 }
 
-/* 🔥 좌우 레이아웃 */
-.container {
-  max-width: 1100px;
-  margin: 30px auto;
-  padding: 20px;
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.layout {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
 }
 
-@media (max-width: 768px) {
-  .container {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* 카드 */
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
+  background: white;
   border-radius: 12px;
   padding: 20px;
 }
 
-/* 입력 */
-.input-group label {
-  font-size: 14px;
+.summary {
+  position: sticky;
+  top: 20px;
+}
+
+.wide {
+  max-width: 1200px;
+  margin: 20px auto;
 }
 
 input {
   width: 100%;
   padding: 10px;
   margin-top: 6px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
 }
 
-/* 버튼 */
-button {
+table {
   width: 100%;
-  padding: 12px;
-  margin-top: 10px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--button-bg);
-  color: var(--button-text);
-  cursor: pointer;
+  border-collapse: collapse;
 }
 
-button:hover {
-  background: var(--accent);
-  color: #fff;
+td, th {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
 }
 
-.danger {
-  background: #ff4444;
-  color: #fff;
-}
-
-/* 리스트 */
-ul {
-  padding-left: 20px;
-}
-
-/* 다크모드 버튼 */
-#themeToggle {
-  margin: 10px;
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
 }
