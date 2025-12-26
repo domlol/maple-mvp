@@ -3,219 +3,182 @@
 <head>
 <meta charset="UTF-8" />
 <title>메이플스토리 MVP 계산기</title>
-
 <style>
-:root {
-  --bg:#f5f6f8; --card:#fff; --text:#111; --sub:#666;
+:root{
+  --bg:#f5f6f8; --card:#fff; --text:#000;
 }
-.dark {
-  --bg:#121212; --card:#1e1e1e; --text:#f1f1f1; --sub:#aaa;
+.dark{
+  --bg:#121212; --card:#1e1e1e; --text:#fff;
 }
-body {
-  margin:0; font-family:system-ui;
+body{
   background:var(--bg); color:var(--text);
+  font-family:Arial; margin:0;
 }
-header {
+header{
   background:#2563eb; color:#fff;
-  padding:16px 24px;
-  display:flex; justify-content:space-between; align-items:center;
+  padding:14px 20px;
+  display:flex; justify-content:space-between;
 }
-.container {
-  max-width:1100px; margin:24px auto; padding:0 16px;
+.container{padding:20px;}
+.row{display:flex; gap:20px;}
+.card{
+  background:var(--card); padding:20px;
+  border-radius:10px; flex:1;
 }
-.grid {
-  display:grid; grid-template-columns:1fr 1fr; gap:24px;
+h3{margin-top:0}
+table{width:100%; border-collapse:collapse;}
+th,td{border-bottom:1px solid #444; padding:6px; text-align:center;}
+.btn{padding:6px 10px; border:none; border-radius:6px; cursor:pointer;}
+.warn{background:#fff3cd; padding:10px; margin:10px 0;}
+.grade-btns button{
+  flex:1; padding:10px; margin-right:5px;
+  border-radius:6px; border:none; cursor:pointer;
 }
-.card {
-  background:var(--card); border-radius:12px;
-  padding:20px;
-}
-h2 { margin:0 0 12px; }
-input, button {
-  padding:8px 10px; border-radius:6px;
-  border:1px solid #ccc;
-}
-button { cursor:pointer; }
-.primary { background:#2563eb; color:#fff; border:none; }
-.danger { background:#ef4444; color:#fff; border:none; }
-.notice {
-  margin:12px 0; padding:10px;
-  background:#fff7ed; border-left:4px solid #f97316;
-  font-size:14px;
-}
-table {
-  width:100%; border-collapse:collapse;
-}
-th, td {
-  padding:8px; border-bottom:1px solid #ddd;
-  text-align:center;
-}
-.badge {
-  padding:4px 10px; border-radius:999px;
-  color:#fff; font-size:13px;
-}
-.bronze{background:#a16207}
-.silver{background:#9ca3af}
-.gold{background:#facc15;color:#000}
-.diamond{background:#38bdf8}
-.red{background:#ef4444}
-.black{background:#000}
-.rank-btns button {
-  width:100%; margin:4px 0;
-}
-.rank-grid {
-  display:grid; grid-template-columns:repeat(6,1fr); gap:8px;
-  margin-top:12px;
-}
-.selected { outline:3px solid #000; }
-.toggle { background:#fff; border-radius:8px; }
-.spacer { margin-top:24px; }
+.grade-red{background:#ef4444;color:#fff}
+.grade-black{background:#000;color:#fff}
+.grade-gold{background:#facc15}
+.grade-dia{background:#38bdf8}
+.grade-silver{background:#9ca3af}
+.grade-bronze{background:#a16207}
+.badge{padding:3px 8px;border-radius:12px;color:#fff;font-size:12px}
 </style>
 </head>
-
 <body>
+
 <header>
-  <h1>메이플스토리 MVP 계산기</h1>
-  <button class="toggle" onclick="toggleTheme()">🌙 / ☀️</button>
+  <div>메이플스토리 MVP 계산기</div>
+  <button class="btn" onclick="toggleMode()">🌙 / ☀</button>
 </header>
 
 <div class="container">
-<div class="grid">
 
-<!-- 좌측 -->
+<div class="row">
 <div class="card">
-<h2>충전 기록 추가</h2>
+<h3>충전 기록 추가</h3>
 <input type="date" id="date">
 <input type="number" id="amount" placeholder="금액">
 <br><br>
-<button class="primary" onclick="add()">추가</button>
-<button class="danger" onclick="resetAll()">전체 초기화</button>
+<button class="btn" onclick="add()">추가</button>
+<button class="btn" onclick="resetAll()">전체 초기화</button>
 
-<div class="notice">⚠ MVP 계산은 캐시 충전일이 아닌 실제 캐시 사용 날짜 기준입니다.</div>
+<div class="warn">⚠ MVP 계산은 캐시 충전일이 아닌 실제 캐시 사용 날짜 기준입니다.</div>
 
-<h3>충전 기록</h3>
-<table>
-<thead><tr><th>날짜</th><th>금액</th><th>삭제</th></tr></thead>
-<tbody id="list"></tbody>
-</table>
+<h4>충전 기록</h4>
+<table id="list"></table>
 
-<div class="spacer"></div>
+<div style="height:20px"></div>
 
-<h3>목표 MVP 등급</h3>
-<div class="rank-grid" id="targets"></div>
+<h4>목표 MVP 등급</h4>
+<div class="grade-btns" style="display:flex">
+<button class="grade-bronze" onclick="setTarget('브론즈')">브론즈</button>
+<button class="grade-silver" onclick="setTarget('실버')">실버</button>
+<button class="grade-gold" onclick="setTarget('골드')">골드</button>
+<button class="grade-dia" onclick="setTarget('다이아')">다이아</button>
+<button class="grade-red" onclick="setTarget('레드')">레드</button>
+<button class="grade-black" onclick="setTarget('블랙')">블랙</button>
+</div>
 </div>
 
-<!-- 우측 -->
 <div class="card">
-<h2>📌 요약 정보</h2>
+<h3>📌 요약 정보</h3>
 <div id="summary"></div>
 </div>
-
 </div>
 
-<div class="card spacer">
-<h2>📊 주차별 예상 등급 시뮬레이션 (13주)</h2>
-<table>
-<thead><tr><th>기준 날짜 (목)</th><th>누적</th><th>등급</th></tr></thead>
-<tbody id="weeks"></tbody>
-</table>
+<div class="card" style="margin-top:20px">
+<h3>📊 주차별 예상 등급 시뮬레이션 (13주)</h3>
+<table id="weeks"></table>
 </div>
 
 </div>
 
 <script>
-const ranks=[
-{n:'브론즈',v:0,c:'bronze'},
-{n:'실버',v:500000,c:'silver'},
-{n:'골드',v:1000000,c:'gold'},
-{n:'다이아',v:1500000,c:'diamond'},
-{n:'레드',v:1500000,c:'red'},
-{n:'블랙',v:3000000,c:'black'}
-];
+const grades={
+  브론즈:150000, 실버:300000, 골드:600000,
+  다이아:900000, 레드:1500000, 블랙:3000000
+};
+let data=[], target="레드";
 
-let data=JSON.parse(localStorage.getItem('mvp')||'[]');
-let target=localStorage.getItem('target')||'레드';
-
-function toggleTheme(){
-document.body.classList.toggle('dark');
-localStorage.theme=document.body.classList.contains('dark');
+function toggleMode(){
+  document.body.classList.toggle("dark");
 }
-if(localStorage.theme==='true')toggleTheme();
 
 function add(){
-data.push({d:date.value,a:+amount.value});
-save();
+  const d=date.value,a=+amount.value;
+  if(!d||!a)return;
+  data.push({d,a});
+  render();
 }
-function resetAll(){data=[];save();}
-function del(i){data.splice(i,1);save();}
-function save(){
-localStorage.mvp=JSON.stringify(data);
-render();
+function resetAll(){data=[];render();}
+function setTarget(g){target=g;render();}
+
+function lastThursday(){
+  const d=new Date();
+  d.setDate(d.getDate()-((d.getDay()+3)%7));
+  d.setHours(0,0,0,0);
+  return d;
 }
+
 function sumAt(base){
-const from=new Date(base);
-from.setDate(from.getDate()-90);
-return data.filter(x=>{
-const d=new Date(x.d);
-return d>=from&&d<=base;
-}).reduce((s,x)=>s+x.a,0);
+  const from=new Date(base);
+  from.setDate(from.getDate()-91);
+  return data.filter(x=>{
+    const t=new Date(x.d);
+    return t>=from && t<=base;
+  }).reduce((s,x)=>s+x.a,0);
 }
-function rankOf(v){
-for(let i=ranks.length-1;i>=0;i--)
-if(v>=ranks[i].v)return ranks[i];
-return ranks[0];
+
+function gradeBy(v){
+  let r="없음";
+  for(const g in grades) if(v>=grades[g]) r=g;
+  return r;
 }
 
 function render(){
-list.innerHTML=data.map((x,i)=>`
-<tr>
-<td>${x.d}</td>
-<td>${x.a.toLocaleString()}</td>
-<td><button onclick="del(${i})">X</button></td>
-</tr>`).join('');
+  // 기록
+  list.innerHTML="<tr><th>날짜</th><th>금액</th><th>삭제</th></tr>"+
+    data.map((x,i)=>`<tr>
+    <td>${x.d}</td><td>${x.a.toLocaleString()}</td>
+    <td><button onclick="data.splice(${i},1);render()">X</button></td>
+    </tr>`).join("");
 
-targets.innerHTML=ranks.map(r=>`
-<button class="${r.c} ${r.n===target?'selected':''}"
-onclick="target='${r.n}';localStorage.target=target;render()">
-${r.n}</button>`).join('');
+  // 요약
+  const base=lastThursday();
+  const total=sumAt(base);
+  const nowGrade=gradeBy(total);
+  const need=grades[target]-total;
 
-const today=new Date();
-const th=new Date(today);
-th.setDate(today.getDate()-((today.getDay()+3)%7));
+  let lastUse=data.length?new Date(Math.max(...data.map(x=>new Date(x.d)))):null;
+  let until="";
+  if(lastUse){
+    lastUse.setDate(lastUse.getDate()+91);
+    until=lastUse.toISOString().slice(0,10);
+  }
 
-const nowSum=sumAt(th);
-const nowRank=rankOf(nowSum);
-const targetRank=ranks.find(r=>r.n===target);
+  summary.innerHTML=`
+  현재 등급: <span class="badge grade-${nowGrade}">${nowGrade}</span><br><br>
+  최근 13주 누적: ${total.toLocaleString()}원<br><br>
+  목표 등급: <span class="badge grade-${target}">${target}</span><br><br>
+  ${need<=0?
+    `✅ 목표 달성<br>${until}까지 유지<br>
+     이후 유지를 위해 ${grades[target].toLocaleString()}원 필요`
+    :
+    `❌ ${need.toLocaleString()}원 더 필요`
+  }
+  `;
 
-let html=`
-현재 등급: <span class="badge ${nowRank.c}">${nowRank.n}</span><br>
-최근 13주 누적: ${nowSum.toLocaleString()}원
-<div class="spacer"></div>
-목표 등급: <span class="badge ${targetRank.c}">${target}</span><br>
-`;
-
-if(nowSum>=targetRank.v){
-const until=new Date(th); until.setDate(until.getDate()+91);
-html+=`✅ 목표 달성<br>${until.toISOString().slice(0,10)}까지 유지<br>
-이후 유지를 위해 ${targetRank.v.toLocaleString()}원 필요`;
-}else{
-html+=`❌ 목표 미달<br>${(targetRank.v-nowSum).toLocaleString()}원 추가 필요`;
-}
-summary.innerHTML=html;
-
-weeks.innerHTML='';
-for(let i=0;i<13;i++){
-const d=new Date(th);
-d.setDate(th.getDate()-7*i);
-const s=sumAt(d);
-const r=rankOf(s);
-weeks.innerHTML+=`
-<tr>
-<td>${d.toISOString().slice(0,10)}</td>
-<td>${s.toLocaleString()}</td>
-<td>${r.n}</td>
-</tr>`;
-}
+  // 13주
+  weeks.innerHTML="<tr><th>기준 날짜(목)</th><th>누적</th><th>등급</th></tr>";
+  for(let i=0;i<13;i++){
+    const d=new Date(base);
+    d.setDate(d.getDate()+7*i);
+    const s=sumAt(d);
+    weeks.innerHTML+=`<tr>
+      <td>${d.toISOString().slice(0,10)}</td>
+      <td>${s.toLocaleString()}</td>
+      <td>${gradeBy(s)}</td>
+    </tr>`;
+  }
 }
 render();
 </script>
