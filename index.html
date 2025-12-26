@@ -5,46 +5,93 @@
 <title>메이플스토리 MVP 계산기</title>
 
 <style>
+:root {
+  --bg: #f4f6f8;
+  --card: #ffffff;
+  --text: #000;
+  --primary: #0d6efd;
+  --danger: #dc3545;
+}
+
+body.dark {
+  --bg: #121212;
+  --card: #1e1e1e;
+  --text: #eaeaea;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f8;
   margin: 0;
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
+
 header {
-  background: #0d6efd;
+  background: var(--primary);
   color: white;
-  padding: 10px;
+  padding: 12px;
   text-align: center;
+  position: relative;
 }
+
+#themeToggle {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
 .container {
   max-width: 1100px;
   margin: 20px auto;
 }
+
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
 }
+
 .card {
-  background: white;
-  border-radius: 10px;
+  background: var(--card);
+  border-radius: 12px;
   padding: 20px;
 }
+
+input {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
 button {
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
 }
-.btn-blue { background:#0d6efd; color:white; }
-.btn-red { background:#dc3545; color:white; }
-.grade-btn { margin:5px; width:90px; }
+
+.btn-blue { background: var(--primary); color: white; }
+.btn-red { background: var(--danger); color: white; }
+
+.grade-btn {
+  margin: 4px;
+  width: 90px;
+}
+
 table {
-  width:100%;
+  width: 100%;
   border-collapse: collapse;
 }
+
 th, td {
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #ccc;
   padding: 8px;
   text-align: center;
 }
@@ -56,79 +103,74 @@ th, td {
 <header>
   🌙 메이플스토리 MVP 계산기  
   <div>이번 주 포함 최근 13주 구매 금액 기준</div>
+  <button id="themeToggle">🌙</button>
 </header>
 
 <div class="container">
 
-  <div class="grid">
-    <!-- 좌측 -->
-    <div class="card">
-      <h3>충전 기록 추가</h3>
-      <input type="date" id="chargeDate"><br><br>
-      <input type="number" id="chargeAmount" placeholder="충전 금액"><br><br>
-      <button class="btn-blue" onclick="addCharge()">추가하기</button>
-      <button class="btn-red" onclick="resetAll()">전체 초기화</button>
+<div class="grid">
+  <div class="card">
+    <h3>충전 기록 추가</h3>
+    <input type="date" id="chargeDate">
+    <input type="number" id="chargeAmount" placeholder="충전 금액">
+    <button class="btn-blue" onclick="addCharge()">추가하기</button>
+    <button class="btn-red" onclick="resetAll()">전체 초기화</button>
 
-      <h3 style="margin-top:20px">목표 MVP 등급</h3>
-      <div>
-        <button class="btn-blue grade-btn" onclick="setTarget('브론즈')">브론즈</button>
-        <button class="btn-blue grade-btn" onclick="setTarget('실버')">실버</button>
-        <button class="btn-blue grade-btn" onclick="setTarget('골드')">골드</button>
-        <button class="btn-blue grade-btn" onclick="setTarget('다이아')">다이아</button>
-        <button class="btn-blue grade-btn" onclick="setTarget('레드')">레드</button>
-        <button class="btn-blue grade-btn" onclick="setTarget('블랙')">블랙</button>
-      </div>
-    </div>
-
-    <!-- 우측 -->
-    <div class="card">
-      <h3>📌 요약 정보</h3>
-      <div id="summary"></div>
-      <hr>
-      <h3>📌 충전 추천</h3>
-      <div id="recommend"></div>
+    <h3 style="margin-top:20px">목표 MVP 등급</h3>
+    <div>
+      <button class="btn-blue grade-btn" onclick="setTarget('브론즈')">브론즈</button>
+      <button class="btn-blue grade-btn" onclick="setTarget('실버')">실버</button>
+      <button class="btn-blue grade-btn" onclick="setTarget('골드')">골드</button>
+      <button class="btn-blue grade-btn" onclick="setTarget('다이아')">다이아</button>
+      <button class="btn-blue grade-btn" onclick="setTarget('레드')">레드</button>
+      <button class="btn-blue grade-btn" onclick="setTarget('블랙')">블랙</button>
     </div>
   </div>
 
-  <div class="card" style="margin-top:20px">
-    <h3>📊 주차별 예상 등급 시뮬레이션 (날짜 기준)</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>기준 날짜</th>
-          <th>예상 누적</th>
-          <th>예상 등급</th>
-        </tr>
-      </thead>
-      <tbody id="simulation"></tbody>
-    </table>
+  <div class="card">
+    <h3>📌 요약 정보</h3>
+    <div id="summary"></div>
+    <hr>
+    <h3>📌 충전 추천</h3>
+    <div id="recommend"></div>
   </div>
+</div>
 
-  <div class="card" style="margin-top:20px">
-    <h3>🧾 충전 기록</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>날짜</th>
-          <th>금액</th>
-          <th>소멸 예정일</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="chargeList"></tbody>
-    </table>
-  </div>
+<div class="card" style="margin-top:20px">
+  <h3>📊 주차별 예상 등급 시뮬레이션 (날짜 기준)</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>기준 날짜</th>
+        <th>예상 누적</th>
+        <th>예상 등급</th>
+      </tr>
+    </thead>
+    <tbody id="simulation"></tbody>
+  </table>
+</div>
+
+<div class="card" style="margin-top:20px">
+  <h3>🧾 충전 기록</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>날짜</th>
+        <th>금액</th>
+        <th>소멸 예정일</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="chargeList"></tbody>
+  </table>
+</div>
 
 </div>
 
 <script>
 const gradeStandard = {
-  브론즈: 100000,
-  실버: 300000,
-  골드: 600000,
-  다이아: 1000000,
-  레드: 2000000,
-  블랙: 5000000
+  브론즈: 100000, 실버: 300000, 골드: 600000,
+  다이아: 1000000, 레드: 2000000, 블랙: 5000000
 };
 
 let charges = [];
@@ -136,11 +178,10 @@ let targetGrade = null;
 const TODAY = new Date();
 
 function addCharge() {
-  const date = new Date(document.getElementById("chargeDate").value);
-  const amount = Number(document.getElementById("chargeAmount").value);
-  if (!date || !amount) return alert("날짜와 금액 입력!");
-
-  charges.push({ date, amount });
+  const d = new Date(chargeDate.value);
+  const a = Number(chargeAmount.value);
+  if (!d || !a) return alert("입력하세요!");
+  charges.push({date:d, amount:a});
   updateAll();
 }
 
@@ -150,22 +191,20 @@ function resetAll() {
   updateAll();
 }
 
-function setTarget(grade) {
-  targetGrade = grade;
+function setTarget(g) {
+  targetGrade = g;
   updateAll();
 }
 
-function get13WeekSum(baseDate = TODAY) {
-  const limit = new Date(baseDate);
+function get13WeekSum(base = TODAY) {
+  const limit = new Date(base);
   limit.setDate(limit.getDate() - 91);
-  return charges
-    .filter(c => c.date >= limit && c.date <= baseDate)
-    .reduce((s,c)=>s+c.amount,0);
+  return charges.filter(c=>c.date>=limit && c.date<=base)
+                .reduce((s,c)=>s+c.amount,0);
 }
 
 function getGrade(sum) {
-  return Object.entries(gradeStandard)
-    .reverse()
+  return Object.entries(gradeStandard).reverse()
     .find(([g,v])=>sum>=v)?.[0] || "없음";
 }
 
@@ -173,60 +212,82 @@ function updateAll() {
   renderSummary();
   renderChargeList();
   renderSimulation();
+  renderRecommend();
 }
 
 function renderSummary() {
   const sum = get13WeekSum();
   const grade = getGrade(sum);
-
   let html = `
-  현재 등급: <b>${grade}</b><br>
-  최근 13주 누적: ${sum.toLocaleString()}원<br>
+    현재 등급: <b>${grade}</b><br>
+    최근 13주 누적: ${sum.toLocaleString()}원
   `;
-
   if (targetGrade) {
-    const need = gradeStandard[targetGrade] - sum;
-    html += need <= 0
-      ? `<br>🎉 목표 ${targetGrade} 달성!`
-      : `<br>❗ 목표 ${targetGrade}까지 ${need.toLocaleString()}원 필요`;
+    const need = gradeStandard[targetGrade]-sum;
+    html += need<=0
+      ? `<br>🎉 목표 ${targetGrade} 달성`
+      : `<br>❗ 목표까지 ${need.toLocaleString()}원 필요`;
   }
+  summary.innerHTML = html;
+}
 
-  document.getElementById("summary").innerHTML = html;
+function renderRecommend() {
+  if (!targetGrade) {
+    recommend.innerHTML = "목표 MVP를 선택하세요.";
+    return;
+  }
+  const sum = get13WeekSum();
+  const need = gradeStandard[targetGrade]-sum;
+  if (need<=0) {
+    recommend.innerHTML = "이미 목표 달성 상태입니다 🎉";
+    return;
+  }
+  const soon = charges
+    .map(c=>new Date(c.date.getTime()+91*86400000))
+    .sort((a,b)=>a-b)[0];
+  if (!soon) {
+    recommend.innerHTML = `${need.toLocaleString()}원 충전 필요`;
+    return;
+  }
+  recommend.innerHTML = `
+    📅 ${soon.toISOString().slice(0,10)} 이전<br>
+    💰 최소 ${need.toLocaleString()}원 충전 권장
+  `;
 }
 
 function renderChargeList() {
-  const tbody = document.getElementById("chargeList");
-  tbody.innerHTML = "";
+  chargeList.innerHTML="";
   charges.forEach((c,i)=>{
-    const expire = new Date(c.date);
-    expire.setDate(expire.getDate()+91);
-    tbody.innerHTML += `
+    const ex = new Date(c.date.getTime()+91*86400000);
+    chargeList.innerHTML+=`
       <tr>
         <td>${c.date.toISOString().slice(0,10)}</td>
         <td>${c.amount.toLocaleString()}</td>
-        <td>${expire.toISOString().slice(0,10)}</td>
+        <td>${ex.toISOString().slice(0,10)}</td>
         <td><button onclick="charges.splice(${i},1);updateAll()">삭제</button></td>
-      </tr>
-    `;
+      </tr>`;
   });
 }
 
 function renderSimulation() {
-  const tbody = document.getElementById("simulation");
-  tbody.innerHTML = "";
-  for(let w=0; w<=13; w++){
-    const d = new Date(TODAY);
-    d.setDate(d.getDate()+w*7);
-    const sum = get13WeekSum(d);
-    tbody.innerHTML += `
+  simulation.innerHTML="";
+  for(let w=0;w<=13;w++){
+    const d=new Date(TODAY); d.setDate(d.getDate()+w*7);
+    const s=get13WeekSum(d);
+    simulation.innerHTML+=`
       <tr>
         <td>${d.toISOString().slice(0,10)}</td>
-        <td>${sum.toLocaleString()}</td>
-        <td>${getGrade(sum)}</td>
-      </tr>
-    `;
+        <td>${s.toLocaleString()}</td>
+        <td>${getGrade(s)}</td>
+      </tr>`;
   }
 }
+
+themeToggle.onclick=()=>{
+  document.body.classList.toggle("dark");
+  localStorage.setItem("theme",document.body.classList.contains("dark"));
+};
+if(localStorage.getItem("theme")==="true") document.body.classList.add("dark");
 
 updateAll();
 </script>
