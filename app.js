@@ -29,7 +29,10 @@ function loadData() {
 function addRecord() {
     const date = chargeDate.value;
     const amount = Number(chargeAmount.value);
-    if (!date || !amount) return alert("날짜와 금액을 입력하세요");
+    if (!date || !amount) {
+        alert("날짜와 금액을 입력하세요");
+        return;
+    }
     records.push({ date, amount });
     saveData();
     render();
@@ -48,26 +51,30 @@ function setTarget(tier) {
 }
 
 function resetAll() {
-    if (!confirm("정말 초기화할까요?")) return;
+    if (!confirm("정말 모든 데이터를 삭제하시겠습니까?")) return;
     records = [];
     selectedTarget = null;
     saveData();
     render();
 }
 
-/* 🔥 13주 (목~수) 기준 */
+/* 🔥 MVP 13주 기준 (이번 주 포함) */
 function get13WeekRange() {
     const now = new Date();
-    const day = now.getDay();
-    const diff = (day <= 4 ? 4 - day : 11 - day);
+    const day = now.getDay(); // 0=일, 4=목
+    const diffToThisThu = (day <= 4 ? 4 - day : 11 - day);
+
     const thisThu = new Date(now);
-    thisThu.setDate(now.getDate() + diff);
+    thisThu.setDate(now.getDate() + diffToThisThu);
     thisThu.setHours(0, 0, 0, 0);
+
+    const nextThu = new Date(thisThu);
+    nextThu.setDate(thisThu.getDate() + 7);
 
     const start = new Date(thisThu);
     start.setDate(thisThu.getDate() - 13 * 7);
 
-    return { start, end: thisThu };
+    return { start, end: nextThu };
 }
 
 function render() {
@@ -83,10 +90,11 @@ function render() {
 
     totalAmount.innerHTML = `총 누적 금액: <b>${total.toLocaleString()}원</b>`;
 
-    let currentTier = "무등급";
-    for (let t in tierTable) if (total >= tierTable[t]) currentTier = t;
-
-    currentTier.innerHTML = `현재 등급: <b>${currentTier}</b>`;
+    let tier = "무등급";
+    for (let t in tierTable) {
+        if (total >= tierTable[t]) tier = t;
+    }
+    currentTier.innerHTML = `현재 등급: <b>${tier}</b>`;
 
     let nextTier = Object.keys(tierTable).find(t => total < tierTable[t]);
     nextTierInfo.innerHTML = nextTier
@@ -99,6 +107,9 @@ function render() {
         targetTierInfo.innerHTML = need > 0
             ? `목표까지 ${need.toLocaleString()}원 부족`
             : "이미 목표 달성!";
+    } else {
+        targetInfo.innerHTML = "";
+        targetTierInfo.innerHTML = "";
     }
 
     expireInfo.innerHTML =
@@ -106,8 +117,9 @@ function render() {
 
     recordList.innerHTML = "";
     records.forEach((r, i) => {
-        recordList.innerHTML += `<li>${r.date} - ${r.amount.toLocaleString()}원
-        <span onclick="deleteRecord(${i})">❌</span></li>`;
+        recordList.innerHTML += `
+          <li>${r.date} - ${r.amount.toLocaleString()}원
+          <span style="cursor:pointer" onclick="deleteRecord(${i})"> ❌</span></li>`;
     });
 }
 
@@ -121,6 +133,8 @@ function applySavedTheme() {
 
 themeToggle.onclick = () => {
     document.body.classList.toggle("dark");
-    localStorage.setItem("theme",
-        document.body.classList.contains("dark") ? "dark" : "light");
+    localStorage.setItem(
+        "theme",
+        document.body.classList.contains("dark") ? "dark" : "light"
+    );
 };
