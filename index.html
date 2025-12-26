@@ -277,7 +277,7 @@ function update(){
       const keepLimit=new Date(breakDate);
       keepLimit.setDate(keepLimit.getDate()-1);
       goalText.innerHTML=
-        `✅ ${formatDate(keepLimit)} (수) 23:59까지 유지 가능<br>
+        `✅ ${formatDate(keepLimit)} (수) 23:59까지 유지 <br>
          이후 유지를 위해 ${(tar.min - calc13WeeksTotal(breakDate)).toLocaleString()}원 필요`;
     } else {
       goalText.innerHTML=`13주 동안 목표 등급 유지 중`;
