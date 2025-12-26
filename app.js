@@ -56,7 +56,7 @@ function resetAll() {
     render();
 }
 
-/* 🔥 MVP 13주 기준 (이번 주 포함) */
+/* 이번 주 포함 13주 */
 function get13WeekRange() {
     const now = new Date();
     const day = now.getDay();
@@ -75,6 +75,42 @@ function get13WeekRange() {
     return { start, end: nextThu };
 }
 
+/* 현재 금액 기준 등급 계산 */
+function getTierByAmount(amount) {
+    let tier = "무등급";
+    for (let t in tierTable) {
+        if (amount >= tierTable[t]) tier = t;
+    }
+    return tier;
+}
+
+/* 🔥 아무것도 안 했을 때 등급 하락 시점 계산 */
+function getDropInfo(validRecords, currentTier) {
+    let tempSum = validRecords.reduce((s, r) => s + r.amount, 0);
+
+    const sorted = [...validRecords].sort(
+        (a, b) =>
+            new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+
+    for (let r of sorted) {
+        tempSum -= r.amount;
+        const newTier = getTierByAmount(tempSum);
+
+        if (newTier !== currentTier) {
+            const expireDate = new Date(r.date);
+            expireDate.setDate(expireDate.getDate() + 91);
+
+            return {
+                from: currentTier,
+                to: newTier,
+                date: expireDate
+            };
+        }
+    }
+    return null;
+}
+
 function render() {
     records.sort((a, b) => new Date(a.date) - new Date(b.date));
 
@@ -88,11 +124,8 @@ function render() {
 
     totalAmount.innerHTML = `총 누적 금액: <b>${total.toLocaleString()}원</b>`;
 
-    let currentTier = "무등급";
-    for (let t in tierTable) {
-        if (total >= tierTable[t]) currentTier = t;
-    }
-    currentTier.innerHTML = `현재 등급: <b>${currentTier}</b>`;
+    const currentTier = getTierByAmount(total);
+    currentTier.innerHTML = `현재 등급 (오늘 기준): <b>${currentTier}</b>`;
 
     if (currentTier !== "무등급") {
         const remain = total - tierTable[currentTier];
@@ -118,7 +151,15 @@ function render() {
         targetTierInfo.innerHTML = "";
     }
 
-    /* 🔥 기록 + 소멸 정보 */
+    /* 🔥 등급 하락 경고 */
+    const drop = getDropInfo(valid, currentTier);
+    if (drop) {
+        nextTierInfo.innerHTML += `<br>
+        ⚠ 이대로 두면 <b>${drop.from}</b> → <b>${drop.to}</b><br>
+        📅 ${drop.date.getFullYear()}-${drop.date.getMonth() + 1}-${drop.date.getDate()}
+        `;
+    }
+
     recordList.innerHTML = "";
     expireList.innerHTML = "";
 
@@ -127,7 +168,7 @@ function render() {
     records.forEach((r, i) => {
         const startDate = new Date(r.date);
         const expireDate = new Date(startDate);
-        expireDate.setDate(startDate.getDate() + 91); // 13주
+        expireDate.setDate(startDate.getDate() + 91);
 
         const dday = Math.ceil((expireDate - today) / 86400000);
 
