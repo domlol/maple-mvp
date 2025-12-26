@@ -43,6 +43,23 @@ header{
   cursor:pointer;
 }
 
+input{
+  width:100%;
+  height:44px;
+  font-size:16px;
+  padding:0 10px;
+  margin:6px 0;
+}
+
+.notice{
+  background:#fef3c7;
+  color:#92400e;
+  padding:10px 12px;
+  border-radius:8px;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
 table{width:100%;border-collapse:collapse;margin-top:10px}
 th,td{padding:8px;border-bottom:1px solid #ccc;text-align:center}
 </style>
@@ -59,8 +76,14 @@ th,td{padding:8px;border-bottom:1px solid #ccc;text-align:center}
 
 <div class="card">
 <h3>충전 기록 추가</h3>
+
+<div class="notice">
+⚠️ <b>주의사항</b><br>
+캐시 <b>충전 금액</b>이 아닌, <b>캐시 사용 날짜 기준</b>으로 입력해야 합니다.
+</div>
+
 <input type="date" id="dateInput">
-<input type="number" id="amountInput" placeholder="금액">
+<input type="number" id="amountInput" placeholder="사용한 캐시 금액">
 <button onclick="addRecord()">추가</button>
 
 <h4>충전 기록</h4>
@@ -156,7 +179,6 @@ currentBadge.innerHTML=`<span class="badge badge-${cur.name}">${cur.name}</span>
 targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
 totalText.innerText=total.toLocaleString()+"원";
 
-// 13주
 weekTable.innerHTML="";
 let breakDate=null;
 let breakSum=0;
@@ -168,7 +190,6 @@ weekTable.innerHTML+=`
 <tr><td>${fmt(d)}</td><td>${s.toLocaleString()}</td><td>${grade(s).name}</td></tr>`;
 }
 
-// 요약
 if(total<tar.min){
 goalText.innerHTML=`❌ 목표 달성까지 ${(tar.min-total).toLocaleString()}원 필요`;
 }else if(tar.min<600000){
