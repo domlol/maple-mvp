@@ -135,5 +135,58 @@ li span.delete {
 
 .dark-mode .dark-btn {
     background: #444;
+
+    /* 버튼, 입력박스 기본 테두리 */
+button, input, select {
+    border: 2px solid #000;        /* 검은 테두리 */
+    background: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* 카드 박스 */
+.card {
+    background: #f9f9f9;           /* 밝은 회색 */
+    border: 1px solid #ccc;        /* 옅은 테두리 */
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+/* ===== 다크모드 ===== */
+.dark-mode {
+    background: #1e1e1e;
+    color: #f5f5f5;
+}
+
+.dark-mode .card {
+    background: #2a2a2a;
+    border: 1px solid #555;
+}
+
+/* 다크모드 버튼 */
+.dark-btn {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+}
+
+/* 다크모드 버튼 스타일 변경 */
+.dark-mode .dark-btn {
+    background: #444;
+    color: #fff;
+    border: 2px solid #ddd;
+}
+
+/* 입력창 다크모드 */
+.dark-mode input,
+.dark-mode select,
+.dark-mode button {
+    background: #333;
+    color: #fff;
+    border: 2px solid #aaa;
+}
+
     color: #fff;
 }
