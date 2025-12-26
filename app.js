@@ -29,10 +29,8 @@ function loadData() {
 function addRecord() {
     const date = chargeDate.value;
     const amount = Number(chargeAmount.value);
-    if (!date || !amount) {
-        alert("날짜와 금액을 입력하세요");
-        return;
-    }
+    if (!date || !amount) return alert("날짜와 금액을 입력하세요");
+
     records.push({ date, amount });
     saveData();
     render();
@@ -51,7 +49,7 @@ function setTarget(tier) {
 }
 
 function resetAll() {
-    if (!confirm("정말 모든 데이터를 삭제하시겠습니까?")) return;
+    if (!confirm("모든 데이터를 삭제할까요?")) return;
     records = [];
     selectedTarget = null;
     saveData();
@@ -61,11 +59,11 @@ function resetAll() {
 /* 🔥 MVP 13주 기준 (이번 주 포함) */
 function get13WeekRange() {
     const now = new Date();
-    const day = now.getDay(); // 0=일, 4=목
-    const diffToThisThu = (day <= 4 ? 4 - day : 11 - day);
+    const day = now.getDay();
+    const diff = (day <= 4 ? 4 - day : 11 - day);
 
     const thisThu = new Date(now);
-    thisThu.setDate(now.getDate() + diffToThisThu);
+    thisThu.setDate(now.getDate() + diff);
     thisThu.setHours(0, 0, 0, 0);
 
     const nextThu = new Date(thisThu);
@@ -90,11 +88,19 @@ function render() {
 
     totalAmount.innerHTML = `총 누적 금액: <b>${total.toLocaleString()}원</b>`;
 
-    let tier = "무등급";
+    let currentTier = "무등급";
     for (let t in tierTable) {
-        if (total >= tierTable[t]) tier = t;
+        if (total >= tierTable[t]) currentTier = t;
     }
-    currentTier.innerHTML = `현재 등급: <b>${tier}</b>`;
+    currentTier.innerHTML = `현재 등급: <b>${currentTier}</b>`;
+
+    if (currentTier !== "무등급") {
+        const remain = total - tierTable[currentTier];
+        tierRemainInfo.innerHTML =
+            `현재 등급 기준 남는 금액: <b>${remain.toLocaleString()}원</b>`;
+    } else {
+        tierRemainInfo.innerHTML = "";
+    }
 
     let nextTier = Object.keys(tierTable).find(t => total < tierTable[t]);
     nextTierInfo.innerHTML = nextTier
@@ -112,14 +118,33 @@ function render() {
         targetTierInfo.innerHTML = "";
     }
 
-    expireInfo.innerHTML =
-        `MVP 기준 기간: ${start.toLocaleDateString()} ~ ${(new Date(end - 1)).toLocaleDateString()}`;
-
+    /* 🔥 기록 + 소멸 정보 */
     recordList.innerHTML = "";
+    expireList.innerHTML = "";
+
+    const today = new Date();
+
     records.forEach((r, i) => {
+        const startDate = new Date(r.date);
+        const expireDate = new Date(startDate);
+        expireDate.setDate(startDate.getDate() + 91); // 13주
+
+        const dday = Math.ceil((expireDate - today) / 86400000);
+
         recordList.innerHTML += `
-          <li>${r.date} - ${r.amount.toLocaleString()}원
-          <span style="cursor:pointer" onclick="deleteRecord(${i})"> ❌</span></li>`;
+          <li>
+            ${r.date} - ${r.amount.toLocaleString()}원
+            <span style="cursor:pointer" onclick="deleteRecord(${i})"> ❌</span>
+          </li>
+        `;
+
+        expireList.innerHTML += `
+          <li>
+            ${r.amount.toLocaleString()}원 →
+            소멸 D-${dday}
+            (${expireDate.getFullYear()}-${expireDate.getMonth()+1}-${expireDate.getDate()})
+          </li>
+        `;
     });
 }
 
