@@ -1,51 +1,91 @@
 :root {
-  --bg: #f5f6f8;
+  --bg: #f4f6f8;
   --card: #ffffff;
   --text: #111;
-  --sub: #555;
+  --accent: #1e6bff;
 }
 
 body.dark {
   --bg: #121212;
   --card: #1e1e1e;
-  --text: #f1f1f1;
-  --sub: #aaa;
+  --text: #eee;
 }
 
 body {
+  margin: 0;
+  font-family: sans-serif;
   background: var(--bg);
   color: var(--text);
-  transition: 0.3s;
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background: var(--accent);
+  color: white;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  padding: 20px;
 }
 
 .card {
   background: var(--card);
-  border-radius: 12px;
   padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 12px;
 }
 
-/* ===== MVP 뱃지 ===== */
-.badge {
-  padding: 4px 10px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 13px;
-  font-weight: bold;
+.wide {
+  margin: 20px;
 }
 
-.badge.브론즈 { background: #a97142; }
-.badge.실버 { background: #bfc5c9; color:#000; }
-.badge.골드 { background: #f5c542; color:#000; }
-.badge.다이아 { background: #4fd1ff; color:#000; }
-.badge.레드 { background: #ff4b4b; }
-.badge.블랙 { background: #000; }
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 6px 0 12px;
+  font-size: 16px;
+}
 
-/* 다크모드 버튼 */
-.theme-btn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
+button {
+  padding: 10px 14px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
   cursor: pointer;
-  font-size: 20px;
+}
+
+button.danger {
+  background: #e74c3c;
+}
+
+.btns {
+  display: flex;
+  gap: 10px;
+}
+
+.notice {
+  font-size: 13px;
+  margin: 10px 0;
+  opacity: 0.8;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  border-bottom: 1px solid #ccc;
+  padding: 8px;
+  text-align: center;
+}
+
+.tier-btns button {
+  margin: 4px;
 }
