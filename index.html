@@ -8,11 +8,11 @@
 </head>
 <body>
 
-<button id="themeToggle" class="dark-btn">🌙 다크모드</button>
+<button id="themeToggle">🌙 다크모드</button>
 
 <header>
     <h1>메이플스토리 MVP 계산기</h1>
-    <p>이번 주 포함 최근 13주(목~수) 충전 금액 기준</p>
+    <p>이번 주를 포함한 최근 13주간 구매 금액</p>
 </header>
 
 <div class="container">
@@ -36,14 +36,12 @@
         <hr>
 
         <h2>목표 MVP 등급</h2>
-        <div class="target-buttons">
-            <button onclick="setTarget('브론즈')">브론즈</button>
-            <button onclick="setTarget('실버')">실버</button>
-            <button onclick="setTarget('골드')">골드</button>
-            <button onclick="setTarget('다이아')">다이아</button>
-            <button onclick="setTarget('레드')">레드</button>
-            <button onclick="setTarget('블랙')">블랙</button>
-        </div>
+        <button onclick="setTarget('브론즈')">브론즈</button>
+        <button onclick="setTarget('실버')">실버</button>
+        <button onclick="setTarget('골드')">골드</button>
+        <button onclick="setTarget('다이아')">다이아</button>
+        <button onclick="setTarget('레드')">레드</button>
+        <button onclick="setTarget('블랙')">블랙</button>
 
         <p id="targetInfo"></p>
 
@@ -52,26 +50,24 @@
         <h2>요약 정보</h2>
         <p id="totalAmount"></p>
         <p id="currentTier"></p>
+        <p id="tierRemainInfo"></p>
         <p id="nextTierInfo"></p>
         <p id="targetTierInfo"></p>
-        <p id="expireInfo"></p>
     </div>
 
     <!-- 오른쪽 -->
     <div class="card">
-        <h2>충전 기록 리스트</h2>
+        <h2>충전 기록 & 소멸 예정</h2>
         <ul id="recordList"></ul>
 
         <hr>
 
-        <h2>곧 소멸될 금액</h2>
-        <p id="tierRemainInfo"></p>
+        <h3>소멸 예정 금액</h3>
         <ul id="expireList"></ul>
 
         <hr>
 
         <button class="danger" onclick="resetAll()">전체 초기화</button>
-        <p class="autosave">💾 모든 기록은 자동 저장됩니다</p>
     </div>
 
 </div>
