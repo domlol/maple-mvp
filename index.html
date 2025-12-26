@@ -2,62 +2,56 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>메이플스토리 MVP 계산기</title>
-  <link rel="stylesheet" href="style.css"/>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<button id="themeToggle" class="theme-btn">🌙</button>
-
-<header>
-  <h1>메이플스토리 MVP 계산기</h1>
-  <p>이번 주를 포함한 최근 13주간 구매 금액 기준</p>
+<header class="top">
+  <div>
+    <h1>메이플스토리 MVP 계산기</h1>
+    <p>이번 주를 포함한 최근 13주간 구매 금액 기준</p>
+  </div>
+  <button id="themeToggle">🌙</button>
 </header>
 
-<div class="layout">
+<main class="container">
 
   <!-- 왼쪽 -->
   <section class="card">
     <h2>충전 기록 추가</h2>
 
-    <div class="input-group">
-      <label>충전 날짜</label>
-      <input type="date" id="chargeDate">
+    <label>캐시 사용 날짜</label>
+    <input type="date" id="dateInput" />
+
+    <label>금액</label>
+    <input type="number" id="amountInput" placeholder="예: 30000" />
+
+    <div class="btns">
+      <button onclick="addRecord()">추가</button>
+      <button class="danger" onclick="resetAll()">전체 초기화</button>
     </div>
 
-    <div class="input-group">
-      <label>충전 금액</label>
-      <input type="number" id="chargeAmount" placeholder="예: 30000">
-    </div>
-
-    <button onclick="addRecord()">추가하기</button>
-    <button class="danger" onclick="resetAll()">전체 초기화</button>
-
-    <!-- ⚠️ 주의사항 -->
     <div class="notice">
-      ⚠️ <b>주의사항</b><br>
-      MVP 계산은 <b>캐시 충전 금액</b>이 아닌<br>
-      <b>캐시를 실제로 사용한 날짜 기준</b>입니다.<br>
-      반드시 캐시 사용 날짜를 입력해주세요.
+      ⚠️ MVP 계산은 <b>캐시 충전일</b>이 아닌  
+      <b>실제 캐시 사용 날짜 기준</b>입니다.
     </div>
 
-    <!-- 충전 기록 (위로 이동) -->
-    <h2>충전 기록</h2>
+    <h3>충전 기록</h3>
     <table>
       <thead>
         <tr>
           <th>날짜</th>
           <th>금액</th>
-          <th>소멸 예정일</th>
+          <th>소멸</th>
           <th></th>
         </tr>
       </thead>
-      <tbody id="recordList"></tbody>
+      <tbody id="recordTable"></tbody>
     </table>
 
-    <h2>목표 MVP 등급</h2>
-    <div class="target-buttons">
+    <h3>목표 MVP 등급</h3>
+    <div class="tier-btns">
       <button onclick="setTarget('브론즈')">브론즈</button>
       <button onclick="setTarget('실버')">실버</button>
       <button onclick="setTarget('골드')">골드</button>
@@ -68,20 +62,25 @@
   </section>
 
   <!-- 오른쪽 -->
-  <aside class="card summary">
+  <aside class="card">
     <h2>📌 요약 정보</h2>
-    <p id="todayTier"></p>
-    <p id="totalAmount"></p>
-    <p id="currentTier"></p>
-    <p id="tierRemainInfo"></p>
-    <p id="targetResult"></p>
+    <div id="summary"></div>
   </aside>
 
-</div>
+</main>
 
 <section class="card wide">
   <h2>📊 주차별 예상 등급 시뮬레이션</h2>
-  <table id="simulationTable"></table>
+  <table>
+    <thead>
+      <tr>
+        <th>기준 날짜</th>
+        <th>예상 누적</th>
+        <th>예상 등급</th>
+      </tr>
+    </thead>
+    <tbody id="simulation"></tbody>
+  </table>
 </section>
 
 <script src="app.js"></script>
