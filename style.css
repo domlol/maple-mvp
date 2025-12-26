@@ -1,153 +1,79 @@
-/* ===========================
-   기본 설정
-=========================== */
-
 :root {
   --bg: #ffffff;
-  --text: #222222;
+  --text: #222;
   --card-bg: #ffffff;
-  --border: #000000;
+  --border: #000;
   --button-bg: #ffffff;
-  --button-text: #000000;
+  --button-text: #000;
   --accent: #007bff;
 }
 
-/* 다크모드 */
 .dark {
   --bg: #1f1f1f;
   --text: #f5f5f5;
   --card-bg: #2a2a2a;
   --border: #f5f5f5;
-  --button-bg: #333333;
-  --button-text: #ffffff;
+  --button-bg: #333;
+  --button-text: #fff;
   --accent: #4da3ff;
 }
 
 body {
   margin: 0;
-  padding: 0;
   font-family: "Noto Sans KR", sans-serif;
-  background-color: var(--bg);
-  color: var(--text);
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* ===========================
-   컨테이너
-=========================== */
-
-.container {
-  max-width: 420px;
-  margin: 40px auto;
-  padding: 20px;
-}
-
-/* ===========================
-   카드
-=========================== */
-
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--border);
-  padding: 20px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-/* ===========================
-   입력 영역
-=========================== */
-
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
   background: var(--bg);
   color: var(--text);
 }
 
-/* ===========================
-   버튼
-=========================== */
+/* 🔥 핵심 레이아웃 */
+.container {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
 
 button {
   width: 100%;
   padding: 12px;
-  margin-top: 10px;
+  margin-top: 8px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--button-bg);
   color: var(--button-text);
   cursor: pointer;
-  transition: 0.2s;
 }
 
 button:hover {
   background: var(--accent);
-  color: white;
-}
-
-/* ===========================
-   리스트 / 항목
-=========================== */
-
-.item {
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin: 8px 0;
-  background: var(--card-bg);
-}
-
-/* ===========================
-   MVP 등급 색상 라벨
-=========================== */
-.mvp-label {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-}
-
-.mvp-silver { background: #c0c0c0; color:#000; }
-.mvp-gold { background: #ffcc00; color:#000; }
-.mvp-red { background: #ff4444; }
-.mvp-black { background: #000000; }
-
-/* ===========================
-   다크모드 스위치
-=========================== */
-
-.dark-toggle {
-  cursor: pointer;
-  padding: 10px;
-  display: inline-block;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--button-bg);
-  color: var(--text);
-  margin-bottom: 20px;
-}
-
-.dark-toggle:hover {
-  background: var(--accent);
   color: #fff;
 }
 
-/* ===========================
-   모바일 최적화
-=========================== */
-
-@media (max-width: 480px) {
-  .container {
-    margin: 20px auto;
-    padding: 15px;
-  }
-  button {
-    padding: 14px;
-  }
+.danger {
+  background: #ff4444;
+  color: white;
 }
