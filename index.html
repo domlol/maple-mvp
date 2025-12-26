@@ -5,7 +5,6 @@
 <title>메이플스토리 MVP 계산기</title>
 
 <style>
-/* (스타일 동일 — 생략 없음) */
 :root {
   --bg:#f5f6f7;
   --card:#ffffff;
@@ -21,12 +20,14 @@ body.dark {
   --notice-bg:#3f3f46;
   --notice-text:#facc15;
 }
+
 body {
   margin:0;
   font-family:system-ui,sans-serif;
   background:var(--bg);
   color:var(--text);
 }
+
 header {
   background:#2563eb;
   color:#fff;
@@ -35,26 +36,32 @@ header {
   display:flex;
   justify-content:space-between;
 }
+
 .container {
   max-width:1100px;
   margin:20px auto;
   padding:0 12px;
 }
+
 .grid {
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:20px;
 }
+
 .card {
   background:var(--card);
   border-radius:12px;
   padding:18px;
 }
+
 input {
   padding:12px;
   font-size:15px;
 }
+
 button { cursor:pointer; }
+
 .badge {
   display:inline-block;
   padding:8px 18px;
@@ -63,12 +70,14 @@ button { cursor:pointer; }
   font-weight:700;
   color:#fff;
 }
+
 .badge-브론즈 {background:#cd7f32;}
 .badge-실버 {background:#9ca3af;}
 .badge-골드 {background:#facc15;color:#000;}
 .badge-다이아 {background:#38bdf8;}
 .badge-레드 {background:#ef4444;}
 .badge-블랙 {background:#000;}
+
 .target-btn {
   width:100%;
   max-width:110px;
@@ -79,6 +88,7 @@ button { cursor:pointer; }
   font-weight:700;
   color:#fff;
 }
+
 .notice {
   margin:12px 0;
   padding:12px;
@@ -87,16 +97,18 @@ button { cursor:pointer; }
   color:var(--notice-text);
   font-weight:700;
 }
+
 .highlight-amount {
   font-size:20px;
   font-weight:800;
   color:var(--accent);
 }
+
 .time-highlight {
-  font-weight:900;
+  font-weight:800;
   color:#ef4444;
-  font-size:16px;
 }
+
 table {
   width:100%;
   border-collapse:collapse;
@@ -143,9 +155,15 @@ th,td {
 
 <div class="card">
   <h3>📌 요약 정보</h3>
+
   <p>현재 등급 : <span id="currentBadge"></span></p>
   <p>목표 등급 : <span id="targetBadge"></span></p>
-  <p>최근 13주 누적 : <span id="totalText" class="highlight-amount"></span></p>
+
+  <p>
+    최근 13주 누적 :
+    <span id="totalText" class="highlight-amount"></span>
+  </p>
+
   <p id="goalText"></p>
 </div>
 
@@ -176,6 +194,7 @@ const MVP=[
 let records=[];
 let target="레드";
 
+/* ✅ 가장 최근에 지난 목요일 (한국 시간 기준) */
 function getLastThursday(base=new Date()){
   const d=new Date(base);
   d.setHours(12,0,0,0);
@@ -186,22 +205,25 @@ function getLastThursday(base=new Date()){
   return d;
 }
 
-function formatDate(d){
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-
 function gradeByAmount(a){
   let g=null;
   for(const m of MVP) if(a>=m.min) g=m;
   return g;
 }
 
-function calc13WeeksTotal(base){
-  const s=new Date(base);
-  s.setDate(s.getDate()-7*12);
+/* ✅ 핵심 수정: 목요일 ~ 수요일 23:59까지 포함 */
+function calc13WeeksTotal(baseThursday){
+  const weekEnd = new Date(baseThursday);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  weekEnd.setHours(23,59,59,999);
+
+  const start = new Date(weekEnd);
+  start.setDate(start.getDate() - 7*13 + 1);
+  start.setHours(0,0,0,0);
+
   return records.filter(r=>{
     const d=new Date(r.date);
-    return d>=s && d<=base;
+    return d>=start && d<=weekEnd;
   }).reduce((t,r)=>t+r.amount,0);
 }
 
@@ -232,20 +254,21 @@ function update(){
   });
 
   const now=new Date();
+  now.setHours(23,59,59,999);
+
   const base=getLastThursday(now);
-
-  /* ✅ 이번 주 MVP 판정 기준 = 수요일 23:59 */
-  const weekEnd=new Date(base);
-  weekEnd.setDate(weekEnd.getDate()+6);
-  weekEnd.setHours(23,59,59,999);
-
-  const total=calc13WeeksTotal(weekEnd);
+  const total=calc13WeeksTotal(base);
 
   const cur=gradeByAmount(total);
   const tar=MVP.find(m=>m.name===target);
 
-  currentBadge.innerHTML=cur ? `<span class="badge badge-${cur.name}">${cur.name}</span>` : "없음";
-  targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
+  currentBadge.innerHTML=cur
+    ? `<span class="badge badge-${cur.name}">${cur.name}</span>`
+    : `없음`;
+
+  targetBadge.innerHTML=
+    `<span class="badge badge-${tar.name}">${tar.name}</span>`;
+
   totalText.innerText=total.toLocaleString()+"원";
 
   weekTable.innerHTML="";
@@ -259,20 +282,23 @@ function update(){
     if(!breakDate && sum<tar.min) breakDate=d;
 
     weekTable.innerHTML+=`
-      <tr>
-        <td>${formatDate(d)}</td>
-        <td>${sum.toLocaleString()}</td>
-        <td>${g?g.name:"없음"}</td>
-      </tr>`;
+    <tr>
+      <td>${d.toISOString().slice(0,10)}</td>
+      <td>${sum.toLocaleString()}</td>
+      <td>${g?g.name:"없음"}</td>
+    </tr>`;
   }
 
   if(total < tar.min){
-    goalText.innerHTML=`❌ 목표 미달<br>목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
+    goalText.innerHTML=
+      `❌ 목표 미달<br>
+       목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
   } else if(breakDate){
     const limit=new Date(breakDate);
     limit.setDate(limit.getDate()-1);
     goalText.innerHTML=
-      `<span class="time-highlight">${formatDate(limit)} 23:59</span>까지 사용 가능<br>
+      `<b>${limit.toISOString().slice(0,10)}</b>
+       <span class="time-highlight">23:59</span>까지 사용 가능<br>
        이후 유지를 위해 ${(tar.min-calc13WeeksTotal(breakDate)).toLocaleString()}원 필요`;
   } else {
     goalText.innerHTML="계속 유지 가능";
