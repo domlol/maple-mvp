@@ -1,91 +1,235 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Maple MVP Calculator</title>
-  <link rel="stylesheet" href="style.css?v=7">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<meta charset="UTF-8" />
+<title>메이플스토리 MVP 계산기</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+}
+header {
+  background: #0d6efd;
+  color: white;
+  padding: 10px;
+  text-align: center;
+}
+.container {
+  max-width: 1100px;
+  margin: 20px auto;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.card {
+  background: white;
+  border-radius: 10px;
+  padding: 20px;
+}
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.btn-blue { background:#0d6efd; color:white; }
+.btn-red { background:#dc3545; color:white; }
+.grade-btn { margin:5px; width:90px; }
+table {
+  width:100%;
+  border-collapse: collapse;
+}
+th, td {
+  border-bottom: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+</style>
 </head>
+
 <body>
 
-<button id="themeToggle" title="다크모드">🌙</button>
-
 <header>
-  <h1>메이플스토리 MVP 계산기</h1>
-  <p>이번 주를 포함한 최근 13주간 구매 금액 기준</p>
+  🌙 메이플스토리 MVP 계산기  
+  <div>이번 주 포함 최근 13주 구매 금액 기준</div>
 </header>
 
-<div class="layout">
+<div class="container">
 
-  <!-- 왼쪽 -->
-  <section class="card">
-    <h2>충전 기록 추가</h2>
+  <div class="grid">
+    <!-- 좌측 -->
+    <div class="card">
+      <h3>충전 기록 추가</h3>
+      <input type="date" id="chargeDate"><br><br>
+      <input type="number" id="chargeAmount" placeholder="충전 금액"><br><br>
+      <button class="btn-blue" onclick="addCharge()">추가하기</button>
+      <button class="btn-red" onclick="resetAll()">전체 초기화</button>
 
-    <div class="input-group">
-      <label>충전 날짜</label>
-      <input type="date" id="chargeDate">
+      <h3 style="margin-top:20px">목표 MVP 등급</h3>
+      <div>
+        <button class="btn-blue grade-btn" onclick="setTarget('브론즈')">브론즈</button>
+        <button class="btn-blue grade-btn" onclick="setTarget('실버')">실버</button>
+        <button class="btn-blue grade-btn" onclick="setTarget('골드')">골드</button>
+        <button class="btn-blue grade-btn" onclick="setTarget('다이아')">다이아</button>
+        <button class="btn-blue grade-btn" onclick="setTarget('레드')">레드</button>
+        <button class="btn-blue grade-btn" onclick="setTarget('블랙')">블랙</button>
+      </div>
     </div>
 
-    <div class="input-group">
-      <label>충전 금액</label>
-      <input type="number" id="chargeAmount" placeholder="예: 30000">
+    <!-- 우측 -->
+    <div class="card">
+      <h3>📌 요약 정보</h3>
+      <div id="summary"></div>
+      <hr>
+      <h3>📌 충전 추천</h3>
+      <div id="recommend"></div>
     </div>
+  </div>
 
-    <button onclick="addRecord()">추가하기</button>
-    <button class="danger" onclick="resetAll()">전체 초기화</button>
+  <div class="card" style="margin-top:20px">
+    <h3>📊 주차별 예상 등급 시뮬레이션 (날짜 기준)</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>기준 날짜</th>
+          <th>예상 누적</th>
+          <th>예상 등급</th>
+        </tr>
+      </thead>
+      <tbody id="simulation"></tbody>
+    </table>
+  </div>
 
-    <hr>
-
-    <h2>목표 MVP 등급</h2>
-    <div class="target-buttons">
-      <button onclick="setTarget('브론즈')">브론즈</button>
-      <button onclick="setTarget('실버')">실버</button>
-      <button onclick="setTarget('골드')">골드</button>
-      <button onclick="setTarget('다이아')">다이아</button>
-      <button onclick="setTarget('레드')">레드</button>
-      <button onclick="setTarget('블랙')">블랙</button>
-    </div>
-  </section>
-
-  <!-- 오른쪽 -->
-  <aside class="card summary">
-    <h2>📌 요약 정보</h2>
-    <p id="todayTier"></p>
-    <p id="totalAmount"></p>
-    <p id="currentTier"></p>
-    <p id="tierRemainInfo"></p>
-    <p id="dropInfo"></p>
-
-    <hr>
-
-    <h3>📅 충전 추천</h3>
-    <p id="keepTierGuide"></p>
-    <p id="targetTierGuide"></p>
-  </aside>
+  <div class="card" style="margin-top:20px">
+    <h3>🧾 충전 기록</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>날짜</th>
+          <th>금액</th>
+          <th>소멸 예정일</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="chargeList"></tbody>
+    </table>
+  </div>
 
 </div>
 
-<section class="card wide">
-  <h2>📊 주차별 예상 등급 시뮬레이션 (날짜 기준)</h2>
-  <table id="simulationTable"></table>
-</section>
+<script>
+const gradeStandard = {
+  브론즈: 100000,
+  실버: 300000,
+  골드: 600000,
+  다이아: 1000000,
+  레드: 2000000,
+  블랙: 5000000
+};
 
-<section class="card wide">
-  <h2>📈 13주 누적 금액 변화</h2>
-  <canvas id="trendChart" height="120"></canvas>
-</section>
+let charges = [];
+let targetGrade = null;
+const TODAY = new Date();
 
-<section class="card wide">
-  <h2>⏳ 소멸 예정 금액</h2>
-  <ul id="expireList"></ul>
-</section>
+function addCharge() {
+  const date = new Date(document.getElementById("chargeDate").value);
+  const amount = Number(document.getElementById("chargeAmount").value);
+  if (!date || !amount) return alert("날짜와 금액 입력!");
 
-<section class="card wide">
-  <h2>🧾 충전 기록</h2>
-  <ul id="recordList"></ul>
-</section>
+  charges.push({ date, amount });
+  updateAll();
+}
 
-<script src="app.js?v=7"></script>
+function resetAll() {
+  charges = [];
+  targetGrade = null;
+  updateAll();
+}
+
+function setTarget(grade) {
+  targetGrade = grade;
+  updateAll();
+}
+
+function get13WeekSum(baseDate = TODAY) {
+  const limit = new Date(baseDate);
+  limit.setDate(limit.getDate() - 91);
+  return charges
+    .filter(c => c.date >= limit && c.date <= baseDate)
+    .reduce((s,c)=>s+c.amount,0);
+}
+
+function getGrade(sum) {
+  return Object.entries(gradeStandard)
+    .reverse()
+    .find(([g,v])=>sum>=v)?.[0] || "없음";
+}
+
+function updateAll() {
+  renderSummary();
+  renderChargeList();
+  renderSimulation();
+}
+
+function renderSummary() {
+  const sum = get13WeekSum();
+  const grade = getGrade(sum);
+
+  let html = `
+  현재 등급: <b>${grade}</b><br>
+  최근 13주 누적: ${sum.toLocaleString()}원<br>
+  `;
+
+  if (targetGrade) {
+    const need = gradeStandard[targetGrade] - sum;
+    html += need <= 0
+      ? `<br>🎉 목표 ${targetGrade} 달성!`
+      : `<br>❗ 목표 ${targetGrade}까지 ${need.toLocaleString()}원 필요`;
+  }
+
+  document.getElementById("summary").innerHTML = html;
+}
+
+function renderChargeList() {
+  const tbody = document.getElementById("chargeList");
+  tbody.innerHTML = "";
+  charges.forEach((c,i)=>{
+    const expire = new Date(c.date);
+    expire.setDate(expire.getDate()+91);
+    tbody.innerHTML += `
+      <tr>
+        <td>${c.date.toISOString().slice(0,10)}</td>
+        <td>${c.amount.toLocaleString()}</td>
+        <td>${expire.toISOString().slice(0,10)}</td>
+        <td><button onclick="charges.splice(${i},1);updateAll()">삭제</button></td>
+      </tr>
+    `;
+  });
+}
+
+function renderSimulation() {
+  const tbody = document.getElementById("simulation");
+  tbody.innerHTML = "";
+  for(let w=0; w<=13; w++){
+    const d = new Date(TODAY);
+    d.setDate(d.getDate()+w*7);
+    const sum = get13WeekSum(d);
+    tbody.innerHTML += `
+      <tr>
+        <td>${d.toISOString().slice(0,10)}</td>
+        <td>${sum.toLocaleString()}</td>
+        <td>${getGrade(sum)}</td>
+      </tr>
+    `;
+  }
+}
+
+updateAll();
+</script>
+
 </body>
 </html>
