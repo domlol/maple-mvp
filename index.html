@@ -1,101 +1,50 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>메이플스토리 MVP 계산기</title>
 
 <style>
-:root {
-  --bg:#f5f6f7;
-  --card:#ffffff;
-  --text:#222;
+:root{
+  --bg:#f5f6f7; --card:#fff; --text:#222;
 }
-body.dark {
-  --bg:#121212;
-  --card:#1e1e1e;
-  --text:#f1f1f1;
+body.dark{
+  --bg:#121212; --card:#1e1e1e; --text:#f1f1f1;
 }
-
-body {
-  margin:0;
-  font-family:system-ui,sans-serif;
-  background:var(--bg);
-  color:var(--text);
+body{
+  margin:0;font-family:system-ui;
+  background:var(--bg);color:var(--text);
 }
-
-header {
-  background:#2563eb;
-  color:#fff;
+header{
+  background:#2563eb;color:#fff;
   padding:14px 20px;
-  font-size:20px;
-  display:flex;
-  justify-content:space-between;
+  display:flex;justify-content:space-between;
 }
+.container{max-width:1100px;margin:20px auto;padding:0 12px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.card{background:var(--card);border-radius:12px;padding:18px;}
 
-.container {
-  max-width:1100px;
-  margin:20px auto;
-  padding:0 12px;
-}
+.badge{padding:4px 12px;border-radius:999px;color:#fff;font-weight:600}
+.badge-브론즈{background:#cd7f32}
+.badge-실버{background:#9ca3af}
+.badge-골드{background:#facc15;color:#000}
+.badge-다이아{background:#38bdf8}
+.badge-레드{background:#ef4444}
+.badge-블랙{background:#000}
 
-.grid {
+.target-wrap{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
 }
-
-.card {
-  background:var(--card);
-  border-radius:12px;
-  padding:18px;
-}
-
-input {
-  padding:10px;
-  font-size:15px;
-}
-
-button {
+.target-btn{
+  border:none;border-radius:10px;
+  padding:8px 0;font-weight:600;color:#fff;
   cursor:pointer;
 }
 
-.badge {
-  display:inline-block;
-  padding:4px 12px;
-  border-radius:999px;
-  font-size:13px;
-  font-weight:600;
-  color:#fff;
-}
-
-.badge-브론즈 {background:#cd7f32;}
-.badge-실버 {background:#9ca3af;}
-.badge-골드 {background:#facc15;color:#000;}
-.badge-다이아 {background:#38bdf8;}
-.badge-레드 {background:#ef4444;}
-.badge-블랙 {background:#000;}
-
-.target-btn {
-  width:100%;
-  padding:10px 0;
-  margin-top:6px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-  font-size:14px;
-  color:#fff;
-}
-
-table {
-  width:100%;
-  border-collapse:collapse;
-  margin-top:10px;
-}
-th,td {
-  padding:10px;
-  border-bottom:1px solid #ccc;
-  text-align:center;
-}
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{padding:8px;border-bottom:1px solid #ccc;text-align:center}
 </style>
 </head>
 
@@ -106,147 +55,131 @@ th,td {
 </header>
 
 <div class="container">
-
 <div class="grid">
 
 <div class="card">
-  <h3>충전 기록 추가</h3>
-  <input type="date" id="dateInput">
-  <input type="number" id="amountInput" placeholder="금액">
-  <button onclick="addRecord()">추가</button>
-  <button onclick="resetAll()">전체 초기화</button>
+<h3>충전 기록 추가</h3>
+<input type="date" id="dateInput">
+<input type="number" id="amountInput" placeholder="금액">
+<button onclick="addRecord()">추가</button>
 
-  <h4>충전 기록</h4>
-  <table>
-    <thead><tr><th>날짜</th><th>금액</th><th>삭제</th></tr></thead>
-    <tbody id="recordTable"></tbody>
-  </table>
+<h4>충전 기록</h4>
+<table>
+<thead><tr><th>날짜</th><th>금액</th><th></th></tr></thead>
+<tbody id="recordTable"></tbody>
+</table>
 
-  <h4>목표 MVP 등급</h4>
-  <div id="targetButtons"></div>
+<h4>목표 MVP 등급</h4>
+<div class="target-wrap" id="targetButtons"></div>
 </div>
 
 <div class="card">
-  <h3>📌 요약 정보</h3>
-  <p>현재 등급: <span id="currentBadge"></span></p>
-  <p>최근 13주 누적: <b id="totalText"></b></p>
-  <p>목표 등급: <span id="targetBadge"></span></p>
-  <p id="goalText"></p>
+<h3>📌 요약 정보</h3>
+<p>현재 등급: <span id="currentBadge"></span></p>
+<p>13주 누적: <b id="totalText"></b></p>
+<p>목표 등급: <span id="targetBadge"></span></p>
+<p id="goalText"></p>
 </div>
 
 </div>
 
 <div class="card">
-  <h3>📊 주차별 예상 등급 시뮬레이션 (13주)</h3>
-  <table>
-    <thead><tr><th>기준 날짜(목)</th><th>누적</th><th>등급</th></tr></thead>
-    <tbody id="weekTable"></tbody>
-  </table>
+<h3>📊 주차별 예상 등급 (13주)</h3>
+<table>
+<thead><tr><th>기준 목요일</th><th>누적</th><th>등급</th></tr></thead>
+<tbody id="weekTable"></tbody>
+</table>
 </div>
-
 </div>
 
 <script>
-const MVP = [
-  {name:"브론즈",min:150000},
-  {name:"실버",min:300000},
-  {name:"골드",min:600000},
-  {name:"다이아",min:900000},
-  {name:"레드",min:1500000},
-  {name:"블랙",min:3000000}
+const MVP=[
+ {name:"브론즈",min:150000},
+ {name:"실버",min:300000},
+ {name:"골드",min:600000},
+ {name:"다이아",min:900000},
+ {name:"레드",min:1500000},
+ {name:"블랙",min:3000000}
 ];
 
 let records=[];
 let target="레드";
 
-function getLastThursday(base = new Date()) {
-  const d = new Date(base);
-  const day = d.getDay();
-  const diff = day >= 4 ? day - 4 : day + 3;
-  d.setDate(d.getDate() - diff);
+function lastThursday(base=new Date()){
+  const d=new Date(base);
+  const diff=(d.getDay()>=4)?d.getDay()-4:d.getDay()+3;
+  d.setDate(d.getDate()-diff);
   d.setHours(0,0,0,0);
   return d;
 }
-
-function gradeByAmount(a){
-  let g=MVP[0];
-  for(const m of MVP) if(a>=m.min) g=m;
-  return g;
+function fmt(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
-
-function calc13WeeksTotal(base){
-  const s=new Date(base);
-  s.setDate(s.getDate()-7*12);
+function grade(sum){
+  return MVP.filter(m=>sum>=m.min).pop()||MVP[0];
+}
+function sum13(base){
+  const s=new Date(base);s.setDate(s.getDate()-84);
   return records.filter(r=>{
     const d=new Date(r.date);
-    return d>=s && d<=base;
-  }).reduce((t,r)=>t+r.amount,0);
+    return d>=s&&d<=base;
+  }).reduce((a,b)=>a+b.amount,0);
 }
 
 function addRecord(){
-  if(!dateInput.value||!amountInput.value) return;
+  if(!dateInput.value||!amountInput.value)return;
   records.push({date:dateInput.value,amount:+amountInput.value});
   update();
 }
 
-function resetAll(){records=[];update();}
-
 function update(){
-  recordTable.innerHTML="";
-  records.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  records.forEach((r,i)=>{
-    recordTable.innerHTML+=`<tr>
-      <td>${r.date}</td>
-      <td>${r.amount.toLocaleString()}</td>
-      <td><button onclick="records.splice(${i},1);update()">X</button></td>
-    </tr>`;
-  });
+recordTable.innerHTML="";
+records.forEach((r,i)=>{
+recordTable.innerHTML+=`
+<tr><td>${r.date}</td>
+<td>${r.amount.toLocaleString()}</td>
+<td><button onclick="records.splice(${i},1);update()">X</button></td></tr>`;
+});
 
-  targetButtons.innerHTML="";
-  MVP.forEach(m=>{
-    targetButtons.innerHTML+=
-      `<button class="target-btn badge-${m.name}" onclick="target='${m.name}';update()">${m.name}</button>`;
-  });
+targetButtons.innerHTML="";
+MVP.forEach(m=>{
+targetButtons.innerHTML+=
+`<button class="target-btn badge-${m.name}" onclick="target='${m.name}';update()">${m.name}</button>`;
+});
 
-  const base=getLastThursday();
-  const total=calc13WeeksTotal(base);
-  const cur=gradeByAmount(total);
-  const tar=MVP.find(m=>m.name===target);
+const base=lastThursday();
+const total=sum13(base);
+const cur=grade(total);
+const tar=MVP.find(m=>m.name===target);
 
-  currentBadge.innerHTML=`<span class="badge badge-${cur.name}">${cur.name}</span>`;
-  targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
-  totalText.innerText=total.toLocaleString()+"원";
+currentBadge.innerHTML=`<span class="badge badge-${cur.name}">${cur.name}</span>`;
+targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
+totalText.innerText=total.toLocaleString()+"원";
 
-  // 13주 시뮬레이션
-  weekTable.innerHTML="";
-  let breakDate=null;
-  for(let i=0;i<13;i++){
-    const d=new Date(base);
-    d.setDate(d.getDate()+7*i);
-    const sum=calc13WeeksTotal(d);
-    if(!breakDate && sum<tar.min) breakDate=d;
-    weekTable.innerHTML+=`<tr>
-      <td>${d.toISOString().slice(0,10)}</td>
-      <td>${sum.toLocaleString()}</td>
-      <td>${gradeByAmount(sum).name}</td>
-    </tr>`;
-  }
-
-  // 요약 문구 (⭐ 핵심 수정 부분)
-  if(total < tar.min){
-    goalText.innerHTML=`❌ 목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
-  } else {
-    // 골드 이상만 유지 계산
-    if(tar.min < 600000){
-      goalText.innerHTML=`현재 MVP 유지 중`;
-    } else {
-      goalText.innerHTML = breakDate
-        ? `${breakDate.toISOString().slice(0,10)} 이후 유지를 위해 ${tar.min.toLocaleString()}원 필요`
-        : `13주 동안 목표 등급 유지 중`;
-    }
-  }
+// 13주
+weekTable.innerHTML="";
+let breakDate=null;
+let breakSum=0;
+for(let i=0;i<13;i++){
+const d=new Date(base);d.setDate(d.getDate()+7*i);
+const s=sum13(d);
+if(!breakDate&&s<tar.min){breakDate=d;breakSum=s;}
+weekTable.innerHTML+=`
+<tr><td>${fmt(d)}</td><td>${s.toLocaleString()}</td><td>${grade(s).name}</td></tr>`;
 }
 
+// 요약
+if(total<tar.min){
+goalText.innerHTML=`❌ 목표 달성까지 ${(tar.min-total).toLocaleString()}원 필요`;
+}else if(tar.min<600000){
+goalText.innerHTML=`현재 MVP 유지 중`;
+}else if(breakDate){
+goalText.innerHTML=
+`${fmt(breakDate)} 이후 유지를 위해 ${(tar.min-breakSum).toLocaleString()}원 필요`;
+}else{
+goalText.innerHTML=`13주 동안 목표 등급 유지`;
+}
+}
 update();
 </script>
 </body>
