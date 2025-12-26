@@ -7,9 +7,13 @@
     <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="container">
+
+<div class="layout">
+
+    <!-- 왼쪽: 메인 기능 -->
+    <div class="main">
         <h1>MVP 계산기</h1>
-        <p>13주 기준 Nexon Cash 누적 금액 계산</p>
+        <p>13주 기준 Nexon Cash 누적 금액 + 예측 시스템</p>
 
         <div class="card">
             <label>충전 날짜</label>
@@ -27,10 +31,44 @@
         <h2>현재 13주 누적 금액</h2>
         <div id="totalArea" class="total">0 원</div>
 
-        <h2>MVP 예상 등급</h2>
+        <h2>현재 등급</h2>
         <div id="rankArea" class="rank">-</div>
+
+        <h2>소멸 예정 정보</h2>
+        <div id="expireInfo" class="expire">
+            -
+        </div>
+
+        <h2>부족/필요 금액</h2>
+        <div id="needInfo" class="need">
+            -
+        </div>
     </div>
 
-    <script src="app.js"></script>
+    <!-- 오른쪽: 목표 등급 선택 -->
+    <div class="goal-panel">
+        <h3>목표 등급 선택</h3>
+
+        <div class="goals">
+            <button onclick="setGoal('브론즈')" class="goal">브론즈</button>
+            <button onclick="setGoal('실버')" class="goal">실버</button>
+            <button onclick="setGoal('골드')" class="goal">골드</button>
+            <button onclick="setGoal('다이아')" class="goal">다이아</button>
+            <button onclick="setGoal('레드')" class="goal">레드</button>
+            <button onclick="setGoal('블랙')" class="goal">블랙</button>
+        </div>
+
+        <div class="goal-result">
+            <h4>선택한 목표:</h4>
+            <div id="goalText">없음</div>
+
+            <h4>목표까지 필요한 금액:</h4>
+            <div id="goalNeed">-</div>
+        </div>
+    </div>
+
+</div>
+
+<script src="app.js"></script>
 </body>
 </html>
