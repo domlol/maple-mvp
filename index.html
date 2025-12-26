@@ -5,291 +5,292 @@
 <title>메이플스토리 MVP 계산기</title>
 
 <style>
+:root {
+  --bg: #f5f6f8;
+  --card: #ffffff;
+  --text: #111;
+  --primary: #2563eb;
+}
+
+body.dark {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --text: #e5e7eb;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #f5f6f8;
+  font-family: Pretendard, sans-serif;
+  background: var(--bg);
+  color: var(--text);
 }
+
 header {
-  background: #2563eb;
-  color: #fff;
+  background: var(--primary);
+  color: white;
   padding: 16px 24px;
-  font-size: 20px;
-  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
+
 .container {
-  max-width: 1200px;
-  margin: 20px auto;
+  max-width: 1100px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  gap: 24px;
 }
+
 .card {
-  background: #fff;
+  background: var(--card);
   border-radius: 12px;
   padding: 20px;
 }
-.card h3 {
+
+.section {
+  margin-bottom: 24px;
+}
+
+h2 {
   margin-top: 0;
 }
 
-input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 10px;
-  margin-bottom: 10px;
+input, button {
+  padding: 8px;
+  font-size: 14px;
 }
 
 button {
-  padding: 8px 14px;
-  border: none;
-  border-radius: 6px;
   cursor: pointer;
+  border-radius: 6px;
+  border: none;
 }
-.btn-add { background: #2563eb; color: #fff; }
-.btn-reset { background: #ef4444; color: #fff; }
 
-.warning {
-  color: #f97316;
-  font-size: 13px;
-  margin-top: 8px;
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+}
+
+.notice {
+  margin-top: 16px;
+  padding: 12px;
+  background: #fff7ed;
+  border-left: 5px solid #f97316;
+  font-weight: bold;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 10px;
-}
-th, td {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 8px;
-  text-align: center;
-}
-.delete-btn {
-  background: #ef4444;
-  color: #fff;
-  border-radius: 4px;
 }
 
-.mvp-buttons {
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-weight: bold;
+  color: white;
+}
+
+.mvp-btns {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   gap: 8px;
-  margin-top: 10px;
 }
+
 .mvp-btn {
-  padding: 10px 0;
-  border-radius: 6px;
-  background: #e5e7eb;
-}
-.mvp-btn.active { color: #fff; }
-
-.bronze { background:#cd7f32; }
-.silver { background:#9ca3af; }
-.gold { background:#facc15; color:#000; }
-.diamond { background:#22d3ee; color:#000; }
-.red { background:#ef4444; }
-.black { background:#000; }
-
-.summary-item {
-  margin-bottom: 14px;
-}
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 999px;
-  color: #fff;
-  font-size: 13px;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: bold;
 }
 
-.full {
-  grid-column: 1 / -1;
+.selected {
+  outline: 3px solid black;
+}
+
+.footer-space {
+  height: 16px;
 }
 </style>
 </head>
 
 <body>
-<header>메이플스토리 MVP 계산기</header>
+<header>
+  <h1>메이플스토리 MVP 계산기</h1>
+  <button onclick="toggleTheme()">🌙 / ☀️</button>
+</header>
 
 <div class="container">
-  <!-- 왼쪽 -->
-  <div class="card">
-    <h3>충전 기록 추가</h3>
-    <input type="date" id="dateInput">
-    <input type="number" id="amountInput" placeholder="금액">
-    <button class="btn-add" onclick="addRecord()">추가</button>
-    <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
 
-    <div class="warning">⚠ MVP 계산은 캐시 충전일이 아닌 실제 캐시 사용 날짜 기준입니다.</div>
+<div class="grid">
 
-    <h3>충전 기록</h3>
-    <table>
-      <thead>
-        <tr><th>날짜</th><th>금액</th><th>삭제</th></tr>
-      </thead>
-      <tbody id="recordTable"></tbody>
-    </table>
+<!-- 좌측 -->
+<div class="card">
 
-    <h3>목표 MVP 등급</h3>
-    <div class="mvp-buttons" id="targetButtons"></div>
-  </div>
+<div class="section">
+<h2>충전 기록 추가</h2>
+<input type="date" id="date">
+<input type="number" id="amount" placeholder="금액">
+<br><br>
+<button class="btn-primary" onclick="addRecord()">추가</button>
+<button class="btn-danger" onclick="clearRecords()">전체 초기화</button>
 
-  <!-- 오른쪽 -->
-  <div class="card">
-    <h3>📌 요약 정보</h3>
-    <div id="summary"></div>
-  </div>
+<div class="notice">
+⚠ MVP 계산은 캐시 충전일이 아닌 실제 캐시 사용 날짜 기준입니다.
+</div>
+</div>
 
-  <!-- 하단 -->
-  <div class="card full">
-    <h3>📊 주차별 예상 등급 시뮬레이션 (13주)</h3>
-    <table>
-      <thead>
-        <tr><th>기준 날짜 (목)</th><th>누적</th><th>등급</th></tr>
-      </thead>
-      <tbody id="weeklyTable"></tbody>
-    </table>
-  </div>
+<div class="section">
+<h3>충전 기록</h3>
+<table>
+<thead>
+<tr><th>날짜</th><th>금액</th><th>삭제</th></tr>
+</thead>
+<tbody id="recordTable"></tbody>
+</table>
+</div>
+
+<div class="section">
+<h3>목표 MVP 등급</h3>
+<div class="mvp-btns" id="targetBtns"></div>
+</div>
+
+</div>
+
+<!-- 우측 -->
+<div class="card">
+<h2>📌 요약 정보</h2>
+<div id="summary"></div>
+</div>
+
+</div>
+
+<div class="footer-space"></div>
+
+<div class="card">
+<h2>📊 주차별 예상 등급 시뮬레이션 (13주)</h2>
+<table>
+<thead>
+<tr><th>기준 날짜 (목)</th><th>누적</th><th>등급</th></tr>
+</thead>
+<tbody id="simTable"></tbody>
+</table>
+</div>
+
 </div>
 
 <script>
-const MVP = [
-  {name:'브론즈', min:150000, cls:'bronze'},
-  {name:'실버', min:300000, cls:'silver'},
-  {name:'골드', min:600000, cls:'gold'},
-  {name:'다이아', min:900000, cls:'diamond'},
-  {name:'레드', min:1500000, cls:'red'},
-  {name:'블랙', min:3000000, cls:'black'}
+const grades = [
+  {name:'브론즈', min:0, color:'#9ca3af'},
+  {name:'실버', min:300000, color:'#9ca3af'},
+  {name:'골드', min:600000, color:'#facc15'},
+  {name:'다이아', min:1000000, color:'#38bdf8'},
+  {name:'레드', min:1500000, color:'#ef4444'},
+  {name:'블랙', min:3000000, color:'#000000'}
 ];
 
 let records = [];
-let target = null;
+let targetGrade = '레드';
 
-/* ---------- 유틸 ---------- */
-function getGrade(sum){
-  let g = null;
-  MVP.forEach(m=>{ if(sum>=m.min) g=m; });
-  return g;
+function toggleTheme(){
+  document.body.classList.toggle('dark');
 }
 
-function startOfWeekThu(d){
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = (day<=4)?4-day:11-day;
-  date.setDate(date.getDate()+diff);
-  date.setHours(0,0,0,0);
-  return date;
-}
-
-/* ---------- 렌더 ---------- */
-function render(){
-  renderRecords();
-  renderSummary();
-  renderWeekly();
-}
-
-function renderRecords(){
-  const tb = document.getElementById('recordTable');
-  tb.innerHTML='';
-  records.forEach((r,i)=>{
-    tb.innerHTML+=`
-      <tr>
-        <td>${r.date}</td>
-        <td>${r.amount.toLocaleString()}</td>
-        <td><button class="delete-btn" onclick="removeRecord(${i})">X</button></td>
-      </tr>`;
-  });
-}
-
-function renderSummary(){
-  const sum13 = records.reduce((a,b)=>a+b.amount,0);
-  const grade = getGrade(sum13);
-  let html = `
-    <div class="summary-item">
-      현재 등급 :
-      ${grade?`<span class="badge ${grade.cls}">${grade.name}</span>`:'없음'}
-    </div>
-    <div class="summary-item">최근 13주 누적 : ${sum13.toLocaleString()}원</div>
-  `;
-
-  if(target){
-    const need = target.min - sum13;
-    if(need<=0){
-      const end = new Date();
-      end.setDate(end.getDate()+13*7-1);
-      html+=`
-        <div class="summary-item">
-          목표 등급 :
-          <span class="badge ${target.cls}">${target.name}</span>
-        </div>
-        <div class="summary-item">✅ 목표 달성</div>
-        <div class="summary-item">📅 ${end.toISOString().slice(0,10)} 까지 유지</div>
-      `;
-    } else {
-      html+=`
-        <div class="summary-item">
-          목표 등급 :
-          <span class="badge ${target.cls}">${target.name}</span>
-        </div>
-        <div class="summary-item">❌ ${need.toLocaleString()}원 부족</div>
-      `;
-    }
-  }
-  document.getElementById('summary').innerHTML=html;
-}
-
-function renderWeekly(){
-  const tb = document.getElementById('weeklyTable');
-  tb.innerHTML='';
-  const base = startOfWeekThu(new Date());
-  for(let i=0;i<13;i++){
-    const d = new Date(base);
-    d.setDate(d.getDate()+i*7);
-    const sum = records.reduce((a,b)=>a+b.amount,0);
-    const g = getGrade(sum);
-    tb.innerHTML+=`
-      <tr>
-        <td>${d.toISOString().slice(0,10)}</td>
-        <td>${sum.toLocaleString()}</td>
-        <td>${g?g.name:'없음'}</td>
-      </tr>`;
-  }
-}
-
-/* ---------- 이벤트 ---------- */
 function addRecord(){
-  const d = dateInput.value;
-  const a = Number(amountInput.value);
-  if(!d||!a) return;
+  const d = date.value;
+  const a = Number(amount.value);
+  if(!d || !a) return;
   records.push({date:d, amount:a});
   render();
 }
 
-function removeRecord(i){
-  records.splice(i,1);
+function clearRecords(){
+  records = [];
   render();
 }
 
-function resetAll(){
-  records=[];
-  target=null;
-  render();
+function getThursday(date){
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = day <= 4 ? 4 - day : 11 - day;
+  d.setDate(d.getDate() + diff);
+  d.setHours(0,0,0,0);
+  return d;
 }
 
-/* ---------- 목표 버튼 ---------- */
-const btnWrap = document.getElementById('targetButtons');
-MVP.forEach(m=>{
-  const b = document.createElement('button');
-  b.className='mvp-btn';
-  b.textContent=m.name;
-  b.onclick=()=>{
-    target=m;
-    document.querySelectorAll('.mvp-btn').forEach(x=>x.className='mvp-btn');
-    b.classList.add('active',m.cls);
-    render();
-  };
-  btnWrap.appendChild(b);
-});
+function sum13Weeks(baseThu){
+  const start = new Date(baseThu);
+  start.setDate(start.getDate() - 91);
+  return records.filter(r=>{
+    const d = new Date(r.date);
+    return d > start && d <= baseThu;
+  }).reduce((a,b)=>a+b.amount,0);
+}
+
+function getGrade(sum){
+  return [...grades].reverse().find(g=>sum>=g.min) || grades[0];
+}
+
+function render(){
+  // 기록
+  recordTable.innerHTML = records.map((r,i)=>`
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.amount.toLocaleString()}</td>
+      <td><button onclick="records.splice(${i},1);render()">X</button></td>
+    </tr>`).join('');
+
+  // 요약
+  const nowThu = getThursday(new Date());
+  const sum = sum13Weeks(nowThu);
+  const g = getGrade(sum);
+
+  summary.innerHTML = `
+    <p>현재 등급: <span class="badge" style="background:${g.color}">${g.name}</span></p>
+    <p style="margin-top:12px">최근 13주 누적: ${sum.toLocaleString()}원</p>
+    <p style="margin-top:12px">목표 등급: <span class="badge" style="background:${getGrade(grades.find(x=>x.name===targetGrade).min).color}">${targetGrade}</span></p>
+    ${sum >= grades.find(x=>x.name===targetGrade).min
+      ? `<p style="margin-top:12px">✅ 목표 달성<br>${new Date(nowThu.getTime()+6*86400000).toISOString().slice(0,10)}까지 유지</p>`
+      : `<p style="margin-top:12px">❌ 목표 미달</p>`
+    }
+  `;
+
+  // 시뮬레이션
+  simTable.innerHTML = '';
+  for(let i=0;i<13;i++){
+    const t = new Date(nowThu);
+    t.setDate(t.getDate()-i*7);
+    const s = sum13Weeks(t);
+    const gr = getGrade(s);
+    simTable.innerHTML += `
+      <tr>
+        <td>${t.toISOString().slice(0,10)}</td>
+        <td>${s.toLocaleString()}</td>
+        <td>${gr.name}</td>
+      </tr>`;
+  }
+}
+
+targetBtns.innerHTML = grades.map(g=>`
+  <button class="mvp-btn ${g.name===targetGrade?'selected':''}"
+    style="background:${g.color};color:white"
+    onclick="targetGrade='${g.name}';render()">${g.name}</button>
+`).join('');
 
 render();
 </script>
