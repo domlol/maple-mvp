@@ -30,6 +30,7 @@ header {
   font-size:20px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
 }
 
 .container {
@@ -51,8 +52,8 @@ header {
 }
 
 input {
-  padding:8px 10px;
-  font-size:14px;
+  padding:10px 12px;
+  font-size:15px;
 }
 
 button {
@@ -61,10 +62,10 @@ button {
 
 .badge {
   display:inline-block;
-  padding:4px 12px;
+  padding:6px 14px;
   border-radius:999px;
-  font-size:13px;
-  font-weight:600;
+  font-size:14px;
+  font-weight:700;
   color:#fff;
 }
 
@@ -76,14 +77,19 @@ button {
 .badge-블랙 {background:#000;}
 
 .target-btn {
-  min-width:80px;
-  padding:8px 14px;
-  margin:4px 4px 0 0;
+  width:calc(100% / 6 - 6px);
+  padding:10px 0;
+  margin:3px;
   border:none;
-  border-radius:10px;
-  font-weight:600;
+  border-radius:12px;
+  font-weight:700;
   font-size:14px;
   color:#fff;
+  opacity:.4;
+}
+.target-btn.active {
+  opacity:1;
+  outline:3px solid #000;
 }
 
 table {
@@ -92,7 +98,7 @@ table {
   margin-top:10px;
 }
 th,td {
-  padding:10px;
+  padding:12px;
   border-bottom:1px solid #ccc;
   text-align:center;
 }
@@ -116,22 +122,29 @@ th,td {
   <button onclick="addRecord()">추가</button>
   <button onclick="resetAll()">전체 초기화</button>
 
-  <h4>충전 기록</h4>
+  <h4 style="margin-top:20px;">충전 기록</h4>
   <table>
     <thead><tr><th>날짜</th><th>금액</th><th>삭제</th></tr></thead>
     <tbody id="recordTable"></tbody>
   </table>
 
-  <h4>목표 MVP 등급</h4>
-  <div id="targetButtons"></div>
+  <h4 style="margin-top:24px;">목표 MVP 등급</h4>
+  <div id="targetButtons" style="display:flex;flex-wrap:wrap;"></div>
 </div>
 
 <div class="card">
   <h3>📌 요약 정보</h3>
   <p>현재 등급: <span id="currentBadge"></span></p>
   <p>최근 13주 누적: <b id="totalText"></b></p>
+
+  <div style="margin:14px 0;"></div>
+
   <p>목표 등급: <span id="targetBadge"></span></p>
   <p id="goalText"></p>
+
+  <p style="margin-top:18px;font-size:14px;opacity:.8;">
+    ⚠ MVP 계산은 캐시 충전일이 아닌 실제 캐시 사용 날짜 기준입니다.
+  </p>
 </div>
 
 </div>
@@ -139,7 +152,13 @@ th,td {
 <div class="card">
   <h3>📊 주차별 예상 등급 시뮬레이션 (13주)</h3>
   <table>
-    <thead><tr><th>기준 날짜(목)</th><th>누적</th><th>등급</th></tr></thead>
+    <thead>
+      <tr>
+        <th>기준 날짜 (목)</th>
+        <th>누적 금액</th>
+        <th>등급</th>
+      </tr>
+    </thead>
     <tbody id="weekTable"></tbody>
   </table>
 </div>
@@ -159,17 +178,13 @@ const MVP = [
 let records=[];
 let target="레드";
 
-function getLastThursday(base = new Date()) {
-  const d = new Date(base);
-  const day = d.getDay(); // 0(일) ~ 6(토)
-
-  // 목요일 = 4
-  // 오늘이 목요일이면 오늘 사용
-  // 아니면 가장 최근에 지난 목요일로 이동
-  const diff = day >= 4 ? day - 4 : day + 3;
-
-  d.setDate(d.getDate() - diff);
-  d.setHours(0, 0, 0, 0);
+/* 최근에 지난 목요일 */
+function getLastThursday(base=new Date()){
+  const d=new Date(base);
+  const day=d.getDay();
+  const diff = day>=4 ? day-4 : day+3;
+  d.setDate(d.getDate()-diff);
+  d.setHours(0,0,0,0);
   return d;
 }
 
@@ -180,11 +195,11 @@ function gradeByAmount(a){
 }
 
 function calc13WeeksTotal(base){
-  const s=new Date(base);
-  s.setDate(s.getDate()-7*12);
+  const start=new Date(base);
+  start.setDate(start.getDate()-7*12);
   return records.filter(r=>{
     const d=new Date(r.date);
-    return d>=s && d<=base;
+    return d>=start && d<=base;
   }).reduce((t,r)=>t+r.amount,0);
 }
 
@@ -194,23 +209,28 @@ function addRecord(){
   update();
 }
 
-function resetAll(){records=[];update();}
+function resetAll(){
+  records=[];
+  update();
+}
 
 function update(){
   recordTable.innerHTML="";
   records.sort((a,b)=>new Date(b.date)-new Date(a.date));
   records.forEach((r,i)=>{
-    recordTable.innerHTML+=`<tr>
-      <td>${r.date}</td>
-      <td>${r.amount.toLocaleString()}</td>
-      <td><button onclick="records.splice(${i},1);update()">X</button></td>
-    </tr>`;
+    recordTable.innerHTML+=`
+      <tr>
+        <td>${r.date}</td>
+        <td>${r.amount.toLocaleString()}</td>
+        <td><button onclick="records.splice(${i},1);update()">X</button></td>
+      </tr>`;
   });
 
   targetButtons.innerHTML="";
   MVP.forEach(m=>{
-    targetButtons.innerHTML+=
-      `<button class="target-btn badge-${m.name}" onclick="target='${m.name}';update()">${m.name}</button>`;
+    targetButtons.innerHTML+=`
+      <button class="target-btn badge-${m.name} ${m.name===target?'active':''}"
+        onclick="target='${m.name}';update()">${m.name}</button>`;
   });
 
   const base=getLastThursday();
@@ -222,34 +242,39 @@ function update(){
   targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
   totalText.innerText=total.toLocaleString()+"원";
 
-  // 주차 시뮬레이션
   weekTable.innerHTML="";
-  let breakDate=null;
+  let breakDate=null, breakSum=null;
+
   for(let i=0;i<13;i++){
     const d=new Date(base);
     d.setDate(d.getDate()+7*i);
     const sum=calc13WeeksTotal(d);
     const g=gradeByAmount(sum);
-    if(!breakDate && sum<tar.min) breakDate=d;
-    weekTable.innerHTML+=`<tr>
-      <td>${d.toISOString().slice(0,10)}</td>
-      <td>${sum.toLocaleString()}</td>
-      <td>${g.name}</td>
-    </tr>`;
+
+    if(!breakDate && sum<tar.min){
+      breakDate=d;
+      breakSum=sum;
+    }
+
+    weekTable.innerHTML+=`
+      <tr>
+        <td>${d.toISOString().slice(0,10)}</td>
+        <td>${sum.toLocaleString()}</td>
+        <td>${g.name}</td>
+      </tr>`;
   }
 
-  // 요약 문구
   if(total < tar.min){
-    goalText.innerHTML=`❌ 목표 미달<br>
-    목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
-  } else {
-    const afterNeed = breakDate
-      ? Math.max(0, tar.min - (calc13WeeksTotal(new Date(breakDate))-records.find(r=>true)?.amount||0))
-      : 0;
     goalText.innerHTML=
-      breakDate
-      ? `${breakDate.toISOString().slice(0,10)} 이후 유지를 위해 ${afterNeed.toLocaleString()}원 필요`
-      : `유지 중`;
+      `❌ 목표 달성을 위해 ${(tar.min-total).toLocaleString()}원 필요`;
+  } else {
+    if(breakDate){
+      goalText.innerHTML=
+        `${breakDate.toISOString().slice(0,10)} 이후
+        유지를 위해 ${(tar.min-breakSum).toLocaleString()}원 필요`;
+    } else {
+      goalText.innerHTML=`13주 이상 안정적으로 유지 중`;
+    }
   }
 }
 
