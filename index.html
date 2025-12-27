@@ -104,10 +104,9 @@ button { cursor:pointer; }
   color:var(--accent);
 }
 
-/* ✅ 날짜 + 시간 전체 강조 */
-.date-strong {
+.time-highlight {
+  font-weight:900;
   font-size:17px;
-  font-weight:800;
   color:#ef4444;
 }
 
@@ -196,7 +195,7 @@ const MVP=[
 let records=[];
 let target="레드";
 
-/* ✅ 가장 최근에 지난 목요일 (한국 시간 기준) */
+/* 가장 최근에 지난 목요일 */
 function getLastThursday(base=new Date()){
   const d=new Date(base);
   d.setHours(12,0,0,0);
@@ -213,10 +212,9 @@ function gradeByAmount(a){
   return g;
 }
 
-/* ✅ 목요일~수요일 23:59 포함 */
 function calc13WeeksTotal(baseThursday){
   const weekEnd = new Date(baseThursday);
-  weekEnd.setDate(weekEnd.getDate()+6);
+  weekEnd.setDate(weekEnd.getDate() + 6);
   weekEnd.setHours(23,59,59,999);
 
   const start = new Date(weekEnd);
@@ -241,11 +239,11 @@ function update(){
   records.sort((a,b)=>new Date(b.date)-new Date(a.date));
   records.forEach((r,i)=>{
     recordTable.innerHTML+=`
-      <tr>
-        <td>${r.date}</td>
-        <td>${r.amount.toLocaleString()}</td>
-        <td><button onclick="records.splice(${i},1);update()">X</button></td>
-      </tr>`;
+    <tr>
+      <td>${r.date}</td>
+      <td>${r.amount.toLocaleString()}</td>
+      <td><button onclick="records.splice(${i},1);update()">X</button></td>
+    </tr>`;
   });
 
   targetButtons.innerHTML="";
@@ -255,10 +253,7 @@ function update(){
         onclick="target='${m.name}';update()">${m.name}</button>`;
   });
 
-  const now=new Date();
-  now.setHours(23,59,59,999);
-
-  const base=getLastThursday(now);
+  const base=getLastThursday(new Date());
   const total=calc13WeeksTotal(base);
 
   const cur=gradeByAmount(total);
@@ -266,9 +261,11 @@ function update(){
 
   currentBadge.innerHTML=cur
     ? `<span class="badge badge-${cur.name}">${cur.name}</span>`
-    : "없음";
+    : `없음`;
 
-  targetBadge.innerHTML=`<span class="badge badge-${tar.name}">${tar.name}</span>`;
+  targetBadge.innerHTML=
+    `<span class="badge badge-${tar.name}">${tar.name}</span>`;
+
   totalText.innerText=total.toLocaleString()+"원";
 
   weekTable.innerHTML="";
@@ -277,16 +274,20 @@ function update(){
   for(let i=0;i<14;i++){
     const d=new Date(base);
     d.setDate(d.getDate()+7*i);
+
+    const displayDate = new Date(d.getTime() + 9*60*60*1000)
+      .toISOString().slice(0,10);
+
     const sum=calc13WeeksTotal(d);
     const g=gradeByAmount(sum);
     if(!breakDate && sum<tar.min) breakDate=d;
 
     weekTable.innerHTML+=`
-      <tr>
-        <td>${d.toISOString().slice(0,10)}</td>
-        <td>${sum.toLocaleString()}</td>
-        <td>${g?g.name:"없음"}</td>
-      </tr>`;
+    <tr>
+      <td>${displayDate}</td>
+      <td>${sum.toLocaleString()}</td>
+      <td>${g?g.name:"없음"}</td>
+    </tr>`;
   }
 
   if(total < tar.min){
@@ -296,11 +297,12 @@ function update(){
   } else if(breakDate){
     const limit=new Date(breakDate);
     limit.setDate(limit.getDate()-1);
+    const limitText = new Date(limit.getTime()+9*60*60*1000)
+      .toISOString().slice(0,16).replace("T"," ");
+
     goalText.innerHTML=
-      `<span class="date-strong">
-        ${limit.toISOString().slice(0,10)} 23:59
-      </span>까지 사용 가능<br>
-      이후 유지를 위해 ${(tar.min-calc13WeeksTotal(breakDate)).toLocaleString()}원 필요`;
+      `<span class="time-highlight">${limitText}</span>까지 사용 가능<br>
+       이후 유지를 위해 ${(tar.min-calc13WeeksTotal(breakDate)).toLocaleString()}원 필요`;
   } else {
     goalText.innerHTML="계속 유지 가능";
   }
