@@ -115,7 +115,7 @@ function render() {
             `이미 최고 등급입니다 👍`;
     }
 
-    // 남는 금액
+    // 현재 등급 기준 남는 금액
     let tierRemainText = "";
     if (currentTier !== "무등급") {
         const remain = total - tierTable[currentTier];
@@ -149,7 +149,9 @@ function render() {
         list.appendChild(li);
     });
 
-    // 소멸 리스트
+    // ----------------------------
+    // 소멸 리스트 (23:59 고정 버전)
+    // ----------------------------
     const expireList = document.getElementById("expireList");
     expireList.innerHTML = "";
     const today = new Date();
@@ -157,21 +159,50 @@ function render() {
     records.forEach((r) => {
         const start = new Date(r.date);
 
-        // 유지 기간 = 91일 → 실제 사용 가능은 "90일 + 전날 23:59"
+        // 유지기간 = 충전일 + 90일
         const expireDate = new Date(start);
         expireDate.setDate(expireDate.getDate() + 90);
-        expireDate.setHours(23, 59, 0, 0);
 
-        const dday = Math.ceil((expireDate - today) / 86400000);
+        // ---- 날짜만 수동 추출 ----
+        const y = expireDate.getFullYear();
+        const m = expireDate.getMonth() + 1;
+        const d = expireDate.getDate();
+
+        // ---- 시간은 직접 문자열로 고정 ----
+        const expireString = `${y}-${m}-${d} 23:59`;
+
+        // ---- 남은 일수 계산 ----
+        const ddayCalc = new Date(expireDate);
+        ddayCalc.setHours(23, 59, 0, 0);
+        const dday = Math.ceil((ddayCalc - today) / 86400000);
 
         const li = document.createElement("li");
         li.innerHTML = `
             ${r.date} → 소멸까지 D-${dday}  
-            (소멸일: ${expireDate.getFullYear()}-${expireDate.getMonth() + 1}-${expireDate.getDate()} 23:59)  
+            (소멸일: ${expireString})  
             / ${r.amount.toLocaleString()}원
         `;
         expireList.appendChild(li);
     });
+
+    // ----------------------------
+    // 가장 오래된 기록 유지기간(D-day)
+    // ----------------------------
+    if (records.length > 0) {
+        const oldest = new Date(records[0].date);
+        const expire = new Date(oldest);
+        expire.setDate(expire.getDate() + 90);
+
+        const left = new Date(expire);
+        left.setHours(23, 59, 0, 0);
+
+        const dday = Math.ceil((left - today) / 86400000);
+
+        document.getElementById("expireInfo").innerHTML =
+            `등급 유지 소멸까지 <b>D-${dday}</b>`;
+    } else {
+        document.getElementById("expireInfo").innerHTML = "";
+    }
 }
 
 // ----------------------------
